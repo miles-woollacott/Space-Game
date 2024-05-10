@@ -17,6 +17,7 @@ class Hero:
         self.placed = False
         self.upgraded = [False for i in self.upgrades]
         self.super_upgrade = False
+        self.sell_value = 0
     
     def update(self):
         self.position = [self.center[0]-self.width/2, self.center[1]-self.height/2]

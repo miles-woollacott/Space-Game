@@ -88,11 +88,9 @@ while gameOn:
     if inMenu:
         for event in pygame.event.get():
 
-            if event.type == KEYDOWN:
-                
-                if event.key == K_BACKSPACE or event.key == K_ESCAPE:
-                    gameOn = False
-            
+            if event.type == KEYDOWN and event.key == K_ESCAPE:
+                gameOn = False
+
             if event.type == MOUSEBUTTONDOWN and cooldown==0:
                 cooldown += 1
                 if infobutton.isClicked():
@@ -113,10 +111,8 @@ while gameOn:
 
         for event in pygame.event.get():
 
-            if event.type == KEYDOWN:
-                
-                if event.key == K_BACKSPACE or event.key == K_ESCAPE:
-                    gameOn = False
+            if event.type == KEYDOWN and event.key == K_ESCAPE:
+                gameOn = False
 
             if event.type == MOUSEBUTTONDOWN and cooldown==0:
                 cooldown += 1
@@ -134,6 +130,9 @@ while gameOn:
 
         # for loop through the event queue
         for event in pygame.event.get():
+
+            if event.type == KEYDOWN and event.key == K_ESCAPE:
+                gameOn = False
 
             if event.type==MOUSEBUTTONDOWN and cooldown==0:
                 mouseloc = list(pygame.mouse.get_pos())
@@ -186,6 +185,10 @@ while gameOn:
 
                 if event.key == K_BACKSPACE or event.key == K_ESCAPE:
                     gameOn = False
+                
+                elif event.key == K_p:
+                    inPause = not inPause
+                    inLevel = not inLevel
 
                 # Spawn enemies (if in sandbox mode)
 
@@ -222,12 +225,14 @@ while gameOn:
                         if event.key == K_1 and sum(h.upgraded)==len(h.upgraded) and not h.super_upgrade and player.money >= h.super_upgrade_cost:
                             h.super_upgrade = True
                             player.money -= h.super_upgrade_cost
+                            h.sell_value += h.super_upgrade_cost/2
                             if h.id == "Gunner":
                                 h.cooldown_reset = 2
                         # Non-super upgrades
                         if event.key == K_1 and not h.upgraded[0] and player.money >= h.upgrades[0]:
                             h.upgraded[0] = True
                             player.money -= h.upgrades[0]
+                            h.sell_value += h.upgrades[0]
                             if h.id == "Gunner":
                                 h.range += 50
                             elif h.id == "Saboteur":
@@ -235,6 +240,7 @@ while gameOn:
                         elif event.key == K_2 and not h.upgraded[1] and player.money >= h.upgrades[1]:
                             h.upgraded[1] = True
                             player.money -= h.upgrades[1]
+                            h.sell_value += h.upgrades[1]
                             if h.id == "Gunner":
                                 h.cooldown_reset -= 10
                             elif h.id == "Howitzer":
@@ -242,12 +248,15 @@ while gameOn:
                         elif event.key == K_3 and not h.upgraded[2] and player.money >= h.upgrades[2]:
                             h.upgraded[2] = True
                             player.money -= h.upgrades[2]
+                            h.sell_value += h.upgrades[2]/2
                         elif event.key == K_4 and len(h.upgrades)>3 and not h.upgraded[3] and player.money >= h.upgrades[3]:
                             h.upgraded[3] = True
                             player.money -= h.upgrades[3]
+                            h.sell_value += h.upgrades[3]/2
                         elif event.key == K_5 and len(h.upgrades)>4 and not h.upgraded[4] and player.money >= h.upgrades[4]:
                             h.upgraded[4] = True
                             player.money -= h.upgrades[4]
+                            h.sell_value += h.upgrades[4]/2
                 
 
                 if event.key == K_SPACE and len(elst)==0 and not sandbox: # Start new level
@@ -385,7 +394,6 @@ while gameOn:
                     if distance(h.center, e.center)<h.range and not h.move and e.distance>dist:
                         e.speed *= 0.9
                         e.sabotaged = True
-                continue
             for e in elst:
                 if e.distance == dist:
                     if h.target == "First" or (h.target == "Strong" and e.priority == strength):
@@ -420,7 +428,9 @@ while gameOn:
                                 # Upgrades
                                 if e.id == "Accelerator" and h.upgraded[2]:
                                     e.sabotaged = True
-                                elif e.id == "Accelerator" and h.upgraded[3]:
+                                elif e.id == "Regenerator" and h.upgraded[3]:
+                                    e.sabotaged = True
+                                elif e.id == "Spawner" and h.upgraded[4]:
                                     e.sabotaged = True
             # Weapon cooldown
             if h.cooldown > 0:
@@ -479,6 +489,13 @@ while gameOn:
             h.update()
         for p in projectiles:
             p.update()
+    
+    elif inPause:
+        for event in pygame.event.get():
+            if event.type == KEYDOWN:
+                if event.key == K_p:
+                    inPause = not inPause
+                    inLevel = not inLevel
 
     
     ################
@@ -503,7 +520,7 @@ while gameOn:
         pygame.draw.rect(screen, black, returnbutton.rect)
         screen.blit(returnbutton.get_text(), (returnbutton.left+20, returnbutton.top+30))
 
-    elif inLevel:
+    elif inLevel or inPause:
 
         # Draw grid lines
         for i in range(13):
@@ -535,6 +552,13 @@ while gameOn:
                 screen.blit(font.render(h.id.upper(), False, white), (1000,50))
                 screen.blit(ssfont.render("1: " + h.super_upgrade_text, False, white), (1000,200))
                 screen.blit(sfont.render("Cost: " + str(h.super_upgrade_cost), False, white), (1000, 250))
+                # Display range and targeting
+                if h.target == "First":
+                    pygame.draw.circle(screen, (0, 200, 0), 
+                        h.center, h.range, 3)
+                elif h.target == "Strong":
+                    pygame.draw.circle(screen, (200, 200, 0), 
+                        h.center, h.range, 3)
             elif h.hover:
                 # Display upgrades
                 upgrade_text = [None for i in h.upgrade_text+h.upgrades]
@@ -573,6 +597,14 @@ while gameOn:
         screen.blit(lives_surface, (680,760))
         screen.blit(round_surface, (840,724))
         screen.blit(time_surface, (840,760))
+
+        if inPause:
+            for event in pygame.event.get():
+                if event.type == KEYDOWN and event.key == K_ESCAPE:
+                    gameOn = False
+            
+            pygame.draw.rect(screen, white, (50, 50, SCREEN_DIM[0]-350, SCREEN_DIM[1]-250))
+            screen.blit(sfont.render('Paused: Press "P" to unpause', False, blue), (350,350))
 
     pygame.display.flip()
 
