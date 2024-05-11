@@ -13,6 +13,7 @@ class Enemy:
         self.distance = distance
         self.shielded = shielded
         self.sabotaged = False
+        self.repaired = False
 
     def update(self):
         self.position = [self.center[0]-self.width/2, self.center[1]-self.height/2]
@@ -101,8 +102,8 @@ class Regenerator(Enemy):
     def __init__(self, xy, index=0, distance=0, shielded=False):
         self.imp = pygame.image.load(os.path.join(os.getcwd(), "Sprites", "Enemies", "Regenerator.png")).convert()
         self.a_imp = pygame.image.load(os.path.join(os.getcwd(), "Sprites", "Enemies", "Regenerator.png")).convert()
-        self.width = 28
-        self.height = 28
+        self.width = 22
+        self.height = 24
         self.index = index
         self.angle = 0
         self.speed = 6
@@ -112,6 +113,51 @@ class Regenerator(Enemy):
         self.id = "Regenerator"
         self.priority = 1
         self.reward = 150
+        super().__init__(xy, distance=distance, shielded=shielded)
+
+class Destroyer(Enemy):
+    def __init__(self, xy, index=0, distance=0, shielded=False):
+        self.imp = pygame.image.load(os.path.join(os.getcwd(), "Sprites", "Enemies", "Destroyer.png")).convert()
+        self.a_imp = pygame.image.load(os.path.join(os.getcwd(), "Sprites", "Enemies", "Destroyer.png")).convert()
+        self.width = 56
+        self.height = 22
+        self.index = index
+        self.angle = 0
+        self.speed = 16
+        self.lives = 5
+        self.id = "Destroyer"
+        self.priority = 2
+        self.reward = 30
+        super().__init__(xy, distance=distance, shielded=shielded)
+
+class Repairer(Enemy):
+    def __init__(self, xy, index=0, distance=0, shielded=False):
+        self.imp = pygame.image.load(os.path.join(os.getcwd(), "Sprites", "Enemies", "Repairer.png")).convert()
+        self.a_imp = pygame.image.load(os.path.join(os.getcwd(), "Sprites", "Enemies", "Repairer.png")).convert()
+        self.width = 28
+        self.height = 28
+        self.index = index
+        self.angle = 0
+        self.speed = 8
+        self.lives = 20
+        self.id = "Repairer"
+        self.priority = 2
+        self.reward = 100
+        super().__init__(xy, distance=distance, shielded=shielded)
+
+class Warper(Enemy):
+    def __init__(self, xy, index=0, distance=0, shielded=False):
+        self.imp = pygame.image.load(os.path.join(os.getcwd(), "Sprites", "Enemies", "Warper.png")).convert()
+        self.a_imp = pygame.image.load(os.path.join(os.getcwd(), "Sprites", "Enemies", "Warper.png")).convert()
+        self.width = 36
+        self.height = 39
+        self.index = index
+        self.angle = 0
+        self.speed = 8
+        self.lives = 20
+        self.id = "Warper"
+        self.priority = 2
+        self.reward = 100
         super().__init__(xy, distance=distance, shielded=shielded)
 
     

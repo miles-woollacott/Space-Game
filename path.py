@@ -21,6 +21,8 @@ class Path:
 
     def get_start(self):
         return [self.start[0], self.start[1]]
+    def get_end(self):
+        return [self.end[0], self.end[1]]
     def get_index(self, i):
         return [self.points[i][0], self.points[i][1]]
     def set_position(self):

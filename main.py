@@ -31,7 +31,22 @@ hoicon = HowitzerClicker(xy=[100, 752])
 ticon = TrashClicker(xy=[350, 752])
 sicon = SaboteurClicker(xy=[150, 752])
 projectiles = []
-level = Path([[0, 400], [200, 400], [200, 100], [500, 100], [500, 600], [200, 600], [200, 700], [1000, 700]])
+paths = [Path([[0, 400], [200, 400], [200, 100], [500, 100], [500, 600], [200, 600], [200, 700], [1000, 700]]),
+         Path([[0, 400], [200, 400], [200, 100], [500, 100], [500, 600], [200, 600], [200, 700], [1000, 700]]),
+         Path([[0, 300], [1000, 700]])]
+level = paths[1]
+difficulty_adj = {"Easy": 0.8, "Medium": 1, "Hard": 1.2}
+
+ghost_enemies = {
+    "Speeder": Speeder([0,0]),
+    "Spawner": Spawner([0,0]),
+    "Accelerator": Accelerator([0,0]),
+    "Tanker": Tanker([0,0]),
+    "Dreadnought": Dreadnought([0,0]),
+    "Regenerator": Regenerator([0,0]),
+    "Destroyer": Destroyer([0,0]),
+    "Repairer": Repairer([0,0])
+}
 
 # Fonts
 font = pygame.font.Font('freesansbold.ttf', 32)
@@ -41,6 +56,7 @@ green = (0, 255, 0)
 yellow = (255, 255, 0)
 red = (255, 0, 0)
 blue = (0, 0, 128)
+lightblue = (0, 0, 255)
 black = (0, 0, 0)
 white = (255, 255, 255)
 purple = (232, 0, 255)
@@ -51,6 +67,9 @@ background = textBox(100, 100, 1000, 600)
 difficultybuttons = [textBox(250, 300, 150, 100, "Easy", green),
                      textBox(500, 300, 150, 100, "Medium", yellow),
                      textBox(750, 300, 150, 100, "Hard", red)]
+pathbuttons = [textBox(270, 420, 50, 50, "1", lightblue),
+                     textBox(520, 420, 50, 50, "2", lightblue),
+                     textBox(770, 420, 50, 50, "3", lightblue)]
 infobutton = textBox(400, 500, 300, 100, "Towers and Enemies", purple)
 returnbutton = textBox(500, 600, 120, 80, "Return", purple)
 
@@ -147,7 +166,7 @@ while gameOn:
                         if ticon.clicked:
                             ticon.clicked = False
                             ind.append(hlst.index(h))
-                            player.money += 3*hlst[ind[-1]].cost/2 # 3x since the code buys and sells at the same time
+                            player.money += 3*hlst[ind[-1]].sell_value/2 # 3x since the code buys and sells at the same time
                         elif len(hlst)==1 and mouseloc[1]<720 and player.money < h.cost: # Don't need to check for collisions
                             h.move = False
                             h.placed = True
@@ -205,6 +224,10 @@ while gameOn:
                         elst.append(Dreadnought(level.get_start()))
                     elif event.key == K_y: # Spawn regenerator
                         elst.append(Regenerator(level.get_start()))
+                    elif event.key == K_u: # Spawn destroyer
+                        elst.append(Destroyer(level.get_start()))
+                    elif event.key == K_i: # Spawn repairer
+                        elst.append(Repairer(level.get_start()))
                     elif event.key == K_c:
                         elst = []
                     elif event.key == K_m:
@@ -299,17 +322,21 @@ while gameOn:
             tickdf = current_leveldf[current_leveldf.Tick == player.leveltick]
             for i in tickdf.ID:
                 if i == 1: # Spawn Speeder
-                    elst.append(Speeder([level.start[0], level.start[1]]))
+                    elst.append(Speeder(level.get_start()))
                 elif i == 2: # Spawn Spawner
-                    elst.append(Spawner([level.start[0], level.start[1]]))
+                    elst.append(Spawner(level.get_start()))
                 elif i == 3: # Spawn Accelerator
-                    elst.append(Accelerator([level.start[0], level.start[1]]))
+                    elst.append(Accelerator(level.get_start()))
                 elif i == 4: # Spawn Tanker
-                    elst.append(Tanker([level.start[0], level.start[1]]))
+                    elst.append(Tanker(level.get_start()))
                 elif i == 5: # Spawn Dreadnought
-                    elst.append(Dreadnought([level.start[0], level.start[1]]))
+                    elst.append(Dreadnought(level.get_start()))
                 elif i == 6: # Spawn Regenerator
-                    elst.append(Regenerator([level.start[0], level.start[1]]))
+                    elst.append(Regenerator(level.get_start()))
+                elif i == 7: # Spawn Destroyer
+                    elst.append(Destroyer(level.get_start()))
+                elif i == 8: # Spawn Repairer
+                    elst.append(Repairer(level.get_start()))
 
         # Spawner spawn new speeders
         for sp in elst:
@@ -356,6 +383,14 @@ while gameOn:
                 e.countdown = (e.countdown + 1) % e.countdown_reset
                 if e.countdown == 0:
                     e.lives += 1
+            # Repairer un-sabotages enemies it touches
+            elif e.id == "Repairer":
+                for e1 in elst:
+                    if e1.hitBox.intersects(e.hitBox) and e1.position != e.position: # Doesn't fix itself
+                        e1.speed = ghost_enemies[e1.id].speed
+                        e1.lives = ghost_enemies[e1.id].lives
+                        e1.sabotaged = False
+                        e1.repaired = True
             # Move along new line if crosses plane
             if distance(e.center, level.points[e.index+1]) < e.speed:
                 e.index += 1
@@ -378,6 +413,7 @@ while gameOn:
             quit()
         
         # Update rotation and fire bullet if nearby
+        lst = [[],[]]
         for h in hlst:
             dist = 0
             strength = 0
@@ -391,7 +427,7 @@ while gameOn:
             # Saboteur with super upgrade
             if h.id == "Saboteur" and h.super_upgrade:
                 for e in elst:
-                    if distance(h.center, e.center)<h.range and not h.move and e.distance>dist:
+                    if e.id != "Repairer" and not e.repaired and distance(h.center, e.center)<h.range and not h.move and e.id != "Saboteur":
                         e.speed *= 0.9
                         e.sabotaged = True
             for e in elst:
@@ -421,7 +457,7 @@ while gameOn:
                                     projectiles[-1].speed *= 1.6
                                 if h.super_upgrade:
                                     projectiles[-1].pierce += 1000
-                            elif h.id == "Saboteur":
+                            elif h.id == "Saboteur" and e.id != "Repairer" and not e.repaired:
                                 e.speed *= 0.99
                                 if h.upgraded[1]:
                                     e.speed *= 0.99
@@ -432,9 +468,18 @@ while gameOn:
                                     e.sabotaged = True
                                 elif e.id == "Spawner" and h.upgraded[4]:
                                     e.sabotaged = True
+                # Destroyers destroy heroes if collision
+                if e.id == "Destroyer" and e.hitBox.intersects(h.hitBox):
+                    lst[0].append(elst.index(e))
+                    lst[1].append(hlst.index(h))
             # Weapon cooldown
             if h.cooldown > 0:
                 h.cooldown = (h.cooldown + 1) % h.cooldown_reset
+        # Delete destroyed objects
+        for i in reversed(lst[0]):
+                del elst[i]
+        for i in reversed(lst[1]):
+                del hlst[i]
 
 
         
@@ -511,6 +556,9 @@ while gameOn:
         for i in difficultybuttons:
             pygame.draw.rect(screen, black, i.rect)
             screen.blit(i.get_text(), (i.left+20, i.top+30))
+        for i in pathbuttons:
+            pygame.draw.rect(screen, black, i.rect)
+            screen.blit(i.get_text(), (i.left+10, i.top+10))
         pygame.draw.rect(screen, black, infobutton.rect)
         screen.blit(infobutton.get_text(), (infobutton.left+20, infobutton.top+30))
 
