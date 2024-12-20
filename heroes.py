@@ -18,6 +18,7 @@ class Hero:
         self.upgraded = [False for i in self.upgrades]
         self.super_upgrade = False
         self.sell_value = 0
+        self.kill_count = 0
     
     def update(self):
         self.position = [self.center[0]-self.width/2, self.center[1]-self.height/2]
@@ -72,5 +73,22 @@ class Saboteur(Hero):
         self.upgrade_text = ["Increase Range", "Increase Speed Reduction", "Cripple Accelerator", "Cripple Regenerator", "Cripple Spawners"]
         self.super_upgrade_text = "What is targeting mode?"
         self.super_upgrade_cost = 12000
+        super().__init__(xy, move)
+
+class Seeker(Hero):
+    def __init__(self, xy, move=False):
+        self.imp = pygame.image.load(os.path.join(os.getcwd(), "Sprites", "Heroes", "Seeker.png")).convert()
+        self.a_imp = pygame.image.load(os.path.join(os.getcwd(), "Sprites", "Heroes", "Seeker.png")).convert()
+        self.width = 28
+        self.height = 61
+        self.range = 100000
+        self.angle = 0
+        self.cooldown_reset = 100
+        self.id = "Seeker"
+        self.cost = 400
+        self.upgrades = [1000, 1000] # Cost of upgrades
+        self.upgrade_text = ["Projectile Speed Up", "Increase Pierce"]
+        self.super_upgrade_text = "It's not missing"
+        self.super_upgrade_cost = 3000
         super().__init__(xy, move)
 

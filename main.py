@@ -30,6 +30,7 @@ gicon = GunnerClicker(xy=[50, 752])
 hoicon = HowitzerClicker(xy=[100, 752])
 ticon = TrashClicker(xy=[350, 752])
 sicon = SaboteurClicker(xy=[150, 752])
+seicon = SeekerClicker(xy=[200, 752])
 projectiles = []
 paths = [Path([[0, 400], [200, 400], [200, 100], [500, 100], [500, 600], [200, 600], [200, 700], [1000, 700]]),
          Path([[0, 400], [200, 400], [200, 100], [500, 100], [500, 600], [200, 600], [200, 700], [1000, 700]]),
@@ -198,6 +199,8 @@ while gameOn:
                     hlst.append(Howitzer(mouseloc, move=True))
                 elif sicon.hitBox.isClicked(mouseloc):
                     hlst.append(Saboteur(mouseloc, move=True))
+                elif seicon.hitBox.isClicked(mouseloc):
+                    hlst.append(Seeker(mouseloc, move=True))
                         
             # Check for KEYDOWN event
             if event.type == KEYDOWN:
@@ -251,6 +254,8 @@ while gameOn:
                             h.sell_value += h.super_upgrade_cost/2
                             if h.id == "Gunner":
                                 h.cooldown_reset = 2
+                            elif h.id == "Seeker":
+                                h.cooldown_reset /= 4
                         # Non-super upgrades
                         if event.key == K_1 and not h.upgraded[0] and player.money >= h.upgrades[0]:
                             h.upgraded[0] = True
@@ -468,6 +473,18 @@ while gameOn:
                                     e.sabotaged = True
                                 elif e.id == "Spawner" and h.upgraded[4]:
                                     e.sabotaged = True
+                            elif h.id == "Seeker":
+                                projectiles.append(Missile(xy=[h.center[0], h.center[1]],
+                                                    angle=h.angle+2*(1-2*int(h.angle<0))))
+                                projectiles[-1].target = h.target
+                                if h.upgraded[0]:
+                                    projectiles[-1].speed *= 2
+                                if h.upgraded[1]:
+                                    projectiles[-1].pierce += 4
+                                if h.super_upgrade:
+                                    projectiles[-1].accelerate = True
+                                    projectiles[-1].speed *= 2
+                                    projectiles[-1].pierce *= 3
                 # Destroyers destroy heroes if collision
                 if e.id == "Destroyer" and e.hitBox.intersects(h.hitBox):
                     lst[0].append(elst.index(e))
@@ -491,8 +508,25 @@ while gameOn:
 
         # Bullet movement/life
         lst = []
-        for p in projectiles:
+        for p in projectiles: # Missiles seek out target
             d = anglemove(p.angle)
+            if p.id == "Missile":
+                if p.accelerate and p.speed < 40:
+                    p.speed *= 1.024
+                dist = 0
+                strength = 0
+                for e in elst: # Find targeted enemy
+                    if e.distance>dist:
+                        if p.target == "First":
+                            dist = e.distance
+                        elif p.target == "Strong" and e.priority>strength:
+                            dist = e.distance
+                            strength = e.priority
+                for e in elst: # Move towards targeted enemy
+                    if e.distance == dist:
+                        if p.target == "First" or (p.target == "Strong" and e.priority == strength):
+                            p.angle = angle(p.center, e.center)
+                            p.a_imp = pygame.transform.rotate(p.imp, p.angle)
             p.center[0] -= p.speed*d[0]
             p.center[1] -= p.speed*d[1]
             p.lifespan += 1
@@ -589,6 +623,8 @@ while gameOn:
         screen.blit(ticon.imp, ticon.position)
         screen.blit(sicon.imp, sicon.position)
         screen.blit(ssfont.render(str(sicon.cost), False, blue), (sicon.position[0],786))
+        screen.blit(seicon.imp, seicon.position)
+        screen.blit(ssfont.render(str(seicon.cost), False, blue), (seicon.position[0],786))
         for h in hlst:
             if h.move and canPlace:
                 pygame.draw.circle(screen, (100, 100, 100), 

@@ -53,4 +53,14 @@ class SaboteurClicker(Clicker):
         self.id = "Saboteur"
         self.text = "Sabotages enemies in various ways."
         super().__init__(xy)
+
+class SeekerClicker(Clicker):
+    def __init__(self, xy):
+        self.imp = pygame.image.load(os.path.join(os.getcwd(), "Sprites", "Heroes", "Seeker.png")).convert()
+        self.width = 28
+        self.height = 61
+        self.cost = Seeker([0, 0]).cost
+        self.id = "Seeker"
+        self.text = "Shoots homing missiles."
+        super().__init__(xy)
         

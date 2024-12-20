@@ -40,3 +40,18 @@ class Blast(Projectile):
         self.lifespan_reset = 600
         self.id = "Blast"
         super().__init__(xy, angle)
+
+class Missile(Projectile):
+    def __init__(self, xy, angle):
+        self.imp = pygame.image.load(os.path.join(os.getcwd(), "Sprites", "Bullet", "Missile.png")).convert()
+        self.a_imp = pygame.image.load(os.path.join(os.getcwd(), "Sprites", "Bullet", "Missile.png")).convert()
+        self.width = 16
+        self.height = 32
+        self.pierce = 1
+        self.speed = 6
+        self.lifespan_reset = 100000
+        self.id = "Missile"
+        self.despawn = True
+        self.target = "First"
+        self.accelerate = False
+        super().__init__(xy, angle)
