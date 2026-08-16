@@ -27,21 +27,27 @@ def generate_level(round, difficulty, ghost_names, ghost_priorities):
     ghost_priorities_p = (ghost_priorities.max() - ghost_priorities+1).astype(float)
     # Determine number of clusters and type of enemies in round
     if difficulty == "Easy":
-        n = random.poisson(lam=4)+1
-        if round < 20:
+        n = random.poisson(lam=sqrt(round))+1
+        if round >= 90:
+            pass
+        elif round < 20:
             ghost_priorities_p[ghost_priorities>1] = 0
         elif round < 40:
             ghost_priorities_p[ghost_priorities>2] = 0
+        elif round < 60:
+            ghost_priorities_p[ghost_priorities>3] = 0
     elif difficulty == "Medium":
-        n = random.poisson(lam=6)+1
-        if round < 10:
+        n = random.poisson(lam=sqrt(round))+2
+        if round >= 75:
+            pass
+        elif round < 10:
             ghost_priorities_p[ghost_priorities>1] = 0
-        elif round < 20:
+        elif round < 25:
             ghost_priorities_p[ghost_priorities>2] = 0
         elif round < 50:
             ghost_priorities_p[ghost_priorities>3] = 0
     else:
-        n = random.poisson(lam=9)+1
+        n = random.poisson(lam=sqrt(round))+3
         if round >= 50:
             pass
         elif round < 5:
@@ -53,7 +59,7 @@ def generate_level(round, difficulty, ghost_names, ghost_priorities):
     ghost_priorities_p = ghost_priorities_p / ghost_priorities_p.sum()
     sels = random.choice(ghost_names, size=n, p=ghost_priorities_p)
     # Determines number of items in clusters, and ticks
-    ticks = random.uniform(low=1, high=500, size=n).astype(int)
+    ticks = random.uniform(low=1, high=min(500, 10*n), size=n).astype(int)
     ticks -= (min(ticks)-1)
     nums = random.poisson(lam=sqrt(round), size=n)+1
     seps = random.poisson(lam=4, size=n)+1

@@ -48,7 +48,7 @@ class Missile(Projectile):
         self.width = 16
         self.height = 32
         self.pierce = 1
-        self.speed = 6
+        self.speed = 10
         self.lifespan_reset = 100000
         self.id = "Missile"
         self.despawn = True

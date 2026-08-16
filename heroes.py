@@ -101,7 +101,7 @@ class Leech(Hero):
         self.range = 100000
         self.angle = 0
         self.cooldown_reset = 100
-        self.id = "Seeker"
+        self.id = "Leech"
         self.cost = 400
         self.upgrades = [1000, 1000] # Cost of upgrades
         self.upgrade_text = ["Projectile Speed Up", "Increase Pierce"]
@@ -118,7 +118,7 @@ class Shredder(Hero):
         self.range = 100000
         self.angle = 0
         self.cooldown_reset = 100
-        self.id = "Seeker"
+        self.id = "Shredder"
         self.cost = 400
         self.upgrades = [1000, 1000] # Cost of upgrades
         self.upgrade_text = ["Projectile Speed Up", "Increase Pierce"]
@@ -135,7 +135,7 @@ class Orbiter(Hero):
         self.range = 100000
         self.angle = 0
         self.cooldown_reset = 100
-        self.id = "Seeker"
+        self.id = "Orbiter"
         self.cost = 400
         self.upgrades = [1000, 1000] # Cost of upgrades
         self.upgrade_text = ["Projectile Speed Up", "Increase Pierce"]

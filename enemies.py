@@ -61,7 +61,7 @@ class Accelerator(Enemy):
         self.height = 22
         self.index = index
         self.angle = 0
-        self.speed = 4
+        self.speed = 5
         self.lives = 2
         self.id = "Accelerator"
         self.priority = 1
@@ -112,7 +112,7 @@ class Regenerator(Enemy):
         self.index = index
         self.angle = 0
         self.speed = 6
-        self.lives = 15
+        self.lives = 16
         self.countdown = 0
         self.countdown_reset = 30
         self.id = "Regenerator"
@@ -146,7 +146,7 @@ class Repairer(Enemy):
         self.index = index
         self.angle = 0
         self.speed = 8
-        self.lives = 20
+        self.lives = 10
         self.id = "Repairer"
         self.priority = 2
         self.reward = 100
