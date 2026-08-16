@@ -92,3 +92,54 @@ class Seeker(Hero):
         self.super_upgrade_cost = 3000
         super().__init__(xy, move)
 
+class Leech(Hero):
+    def __init__(self, xy, move=False):
+        self.imp = pygame.image.load(os.path.join(os.getcwd(), "Sprites", "Heroes", "Seeker.png")).convert()
+        self.a_imp = pygame.image.load(os.path.join(os.getcwd(), "Sprites", "Heroes", "Seeker.png")).convert()
+        self.width = 28
+        self.height = 61
+        self.range = 100000
+        self.angle = 0
+        self.cooldown_reset = 100
+        self.id = "Seeker"
+        self.cost = 400
+        self.upgrades = [1000, 1000] # Cost of upgrades
+        self.upgrade_text = ["Projectile Speed Up", "Increase Pierce"]
+        self.super_upgrade_text = "It's not missing"
+        self.super_upgrade_cost = 3000
+        super().__init__(xy, move)
+
+class Shredder(Hero):
+    def __init__(self, xy, move=False):
+        self.imp = pygame.image.load(os.path.join(os.getcwd(), "Sprites", "Heroes", "Seeker.png")).convert()
+        self.a_imp = pygame.image.load(os.path.join(os.getcwd(), "Sprites", "Heroes", "Seeker.png")).convert()
+        self.width = 28
+        self.height = 61
+        self.range = 100000
+        self.angle = 0
+        self.cooldown_reset = 100
+        self.id = "Seeker"
+        self.cost = 400
+        self.upgrades = [1000, 1000] # Cost of upgrades
+        self.upgrade_text = ["Projectile Speed Up", "Increase Pierce"]
+        self.super_upgrade_text = "It's not missing"
+        self.super_upgrade_cost = 3000
+        super().__init__(xy, move)
+
+class Orbiter(Hero):
+    def __init__(self, xy, move=False):
+        self.imp = pygame.image.load(os.path.join(os.getcwd(), "Sprites", "Heroes", "Seeker.png")).convert()
+        self.a_imp = pygame.image.load(os.path.join(os.getcwd(), "Sprites", "Heroes", "Seeker.png")).convert()
+        self.width = 28
+        self.height = 61
+        self.range = 100000
+        self.angle = 0
+        self.cooldown_reset = 100
+        self.id = "Seeker"
+        self.cost = 400
+        self.upgrades = [1000, 1000] # Cost of upgrades
+        self.upgrade_text = ["Projectile Speed Up", "Increase Pierce"]
+        self.super_upgrade_text = "It's not missing"
+        self.super_upgrade_cost = 3000
+        super().__init__(xy, move)
+

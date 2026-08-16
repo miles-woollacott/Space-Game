@@ -1,7 +1,5 @@
 import pygame
 from pygame.locals import *
-from pandas import read_csv
-
 from heroes import *
 from clickers import *
 from enemies import *
@@ -10,8 +8,7 @@ from functions import *
 from path import Path
 from user import User
 from textbox import textBox
-
-import random
+import os
 
 # Initialize pygame
 pygame.init()
@@ -46,8 +43,12 @@ ghost_enemies = {
     "Dreadnought": Dreadnought([0,0]),
     "Regenerator": Regenerator([0,0]),
     "Destroyer": Destroyer([0,0]),
-    "Repairer": Repairer([0,0])
+    "Repairer": Repairer([0,0]),
+    "Infiltrator": Infiltrator([0,0])
 }
+ghost_lst = list(ghost_enemies.values())
+ghost_names = array([i.id for i in ghost_lst])
+ghost_priorities = array([i.level for i in ghost_lst])
 
 # Fonts
 font = pygame.font.Font('freesansbold.ttf', 32)
@@ -101,7 +102,7 @@ while gameOn:
     ################
 
     if cooldown>0:
-            cooldown = (cooldown + 1) % 20
+            cooldown = (cooldown + 1) % (FPS//2)
 
     keys = pygame.key.get_pressed()
 
@@ -120,9 +121,14 @@ while gameOn:
                     for i in difficultybuttons:
                         if i.isClicked(): # Begin round
                             player = User(difficulty=i.text)
-                            leveldf = read_csv("Rounds/" + player.difficulty + ".csv")
-                            current_leveldf = get_all_ticks(leveldf[leveldf.Round==player.round])
-                            maxrounds = max(leveldf.Round)
+                            level_spawnlist = generate_level(round=player.round, difficulty=player.difficulty,
+                                                             ghost_names=ghost_names, ghost_priorities=ghost_priorities)
+                            if player.difficulty == "Easy":
+                                maxrounds = 50
+                            elif player.difficulty == "Medium":
+                                maxrounds = 75
+                            else:
+                                maxrounds = 100
                             inLevel = True
                             inMenu = False
                             break
@@ -139,8 +145,6 @@ while gameOn:
                 if returnbutton.isClicked():
                     inInfo = False
                     inMenu = True
-
-            
 
     elif inLevel:
 
@@ -231,6 +235,8 @@ while gameOn:
                         elst.append(Destroyer(level.get_start()))
                     elif event.key == K_i: # Spawn repairer
                         elst.append(Repairer(level.get_start()))
+                    elif event.key == K_o: # Spawn infiltrator
+                        elst.append(Infiltrator(level.get_start()))
                     elif event.key == K_c:
                         elst = []
                     elif event.key == K_m:
@@ -292,7 +298,8 @@ while gameOn:
                     if player.round>maxrounds:
                         quit()
                     player.leveltick = 0
-                    current_leveldf = get_all_ticks(leveldf[leveldf.Round==player.round])
+                    level_spawnlist = generate_level(round=player.round, difficulty=player.difficulty,
+                                                             ghost_names=ghost_names, ghost_priorities=ghost_priorities)
                     
             # Check for QUIT event
             elif event.type == QUIT:
@@ -315,33 +322,38 @@ while gameOn:
             if player.round>maxrounds:
                 quit()
             player.leveltick = 0
-            current_leveldf = get_all_ticks(leveldf[leveldf.Round==player.round])
-
+            level_spawnlist = generate_level(round=player.round, difficulty=player.difficulty,
+                                                ghost_names=ghost_names, ghost_priorities=ghost_priorities)
 
         ############ Spawning ############
-                
-        
+
         # Spawn based on level
         if player.leveltick<player.max_ticks and not sandbox:
             player.leveltick += 1
-            tickdf = current_leveldf[current_leveldf.Tick == player.leveltick]
-            for i in tickdf.ID:
-                if i == 1: # Spawn Speeder
-                    elst.append(Speeder(level.get_start()))
-                elif i == 2: # Spawn Spawner
-                    elst.append(Spawner(level.get_start()))
-                elif i == 3: # Spawn Accelerator
-                    elst.append(Accelerator(level.get_start()))
-                elif i == 4: # Spawn Tanker
-                    elst.append(Tanker(level.get_start()))
-                elif i == 5: # Spawn Dreadnought
-                    elst.append(Dreadnought(level.get_start()))
-                elif i == 6: # Spawn Regenerator
-                    elst.append(Regenerator(level.get_start()))
-                elif i == 7: # Spawn Destroyer
-                    elst.append(Destroyer(level.get_start()))
-                elif i == 8: # Spawn Repairer
-                    elst.append(Repairer(level.get_start()))
+            if len(level_spawnlist)>0: # If list is not empty
+                for cluster in level_spawnlist:
+                    if cluster["Tick"] <= player.leveltick: # Spawn enemy
+                        if cluster["ID"] == "Speeder": # Spawn Speeder
+                            elst.append(Speeder(level.get_start()))
+                        elif cluster["ID"] == "Spawner": # Spawn Spawner
+                            elst.append(Spawner(level.get_start()))
+                        elif cluster["ID"] == "Accelerator": # Spawn Accelerator
+                            elst.append(Accelerator(level.get_start()))
+                        elif cluster["ID"] == "Tanker": # Spawn Tanker
+                            elst.append(Tanker(level.get_start()))
+                        elif cluster["ID"] == "Dreadnought": # Spawn Dreadnought
+                            elst.append(Dreadnought(level.get_start()))
+                        elif cluster["ID"] == "Regenerator": # Spawn Regenerator
+                            elst.append(Regenerator(level.get_start()))
+                        elif cluster["ID"] == "Destroyer": # Spawn Destroyer
+                            elst.append(Destroyer(level.get_start()))
+                        elif cluster["ID"] == "Repairer": # Spawn Repairer
+                            elst.append(Repairer(level.get_start()))
+                        elif cluster["ID"] == "Infiltrator": # Spawn Infiltrator
+                            elst.append(Infiltrator(level.get_start()))
+                    cluster["n"] -= 1
+                    cluster["Tick"] += cluster["Sep"]
+            level_spawnlist = [i for i in level_spawnlist if i["n"]>0]
 
         # Spawner spawn new speeders
         for sp in elst:
@@ -360,9 +372,7 @@ while gameOn:
                 elif sp.countdown == 16:
                     elst.append(Regenerator([sp.center[0], sp.center[1]], index=sp.index+0, distance=sp.distance))
 
-
         ############ Moving ############
-
 
         # Move heroes
         for h in hlst:
@@ -466,6 +476,7 @@ while gameOn:
                                 e.speed *= 0.99
                                 if h.upgraded[1]:
                                     e.speed *= 0.99
+                                e.speed = max(0.01, e.speed)
                                 # Upgrades
                                 if e.id == "Accelerator" and h.upgraded[2]:
                                     e.sabotaged = True

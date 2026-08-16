@@ -32,6 +32,7 @@ class Speeder(Enemy):
         self.id = "Speeder"
         self.priority = 1
         self.reward = 10
+        self.level = 1
         super().__init__(xy, distance=distance, shielded=shielded)
 
 class Spawner(Enemy):
@@ -49,6 +50,7 @@ class Spawner(Enemy):
         self.id = "Spawner"
         self.priority = 3
         self.reward = 20
+        self.level = 4
         super().__init__(xy, distance=distance, shielded=shielded)
 
 class Accelerator(Enemy):
@@ -64,6 +66,7 @@ class Accelerator(Enemy):
         self.id = "Accelerator"
         self.priority = 1
         self.reward = 15
+        self.level = 2
         super().__init__(xy, distance=distance, shielded=shielded)
 
 class Tanker(Enemy):
@@ -79,6 +82,7 @@ class Tanker(Enemy):
         self.id = "Tanker"
         self.priority = 2
         self.reward = 20
+        self.level = 2
         super().__init__(xy, distance=distance, shielded=shielded)
 
 class Dreadnought(Enemy):
@@ -96,6 +100,7 @@ class Dreadnought(Enemy):
         self.id = "Dreadnought"
         self.priority = 4
         self.reward = 100
+        self.level = 5
         super().__init__(xy, distance=distance, shielded=shielded)
 
 class Regenerator(Enemy):
@@ -113,6 +118,7 @@ class Regenerator(Enemy):
         self.id = "Regenerator"
         self.priority = 1
         self.reward = 150
+        self.level = 4
         super().__init__(xy, distance=distance, shielded=shielded)
 
 class Destroyer(Enemy):
@@ -128,6 +134,7 @@ class Destroyer(Enemy):
         self.id = "Destroyer"
         self.priority = 2
         self.reward = 30
+        self.level = 4
         super().__init__(xy, distance=distance, shielded=shielded)
 
 class Repairer(Enemy):
@@ -143,21 +150,22 @@ class Repairer(Enemy):
         self.id = "Repairer"
         self.priority = 2
         self.reward = 100
+        self.level = 3
         super().__init__(xy, distance=distance, shielded=shielded)
 
-class Warper(Enemy):
+class Infiltrator(Enemy):
     def __init__(self, xy, index=0, distance=0, shielded=False):
-        self.imp = pygame.image.load(os.path.join(os.getcwd(), "Sprites", "Enemies", "Warper.png")).convert()
-        self.a_imp = pygame.image.load(os.path.join(os.getcwd(), "Sprites", "Enemies", "Warper.png")).convert()
-        self.width = 36
-        self.height = 39
+        self.imp = pygame.image.load(os.path.join(os.getcwd(), "Sprites", "Enemies", "Repairer.png")).convert()
+        self.a_imp = pygame.image.load(os.path.join(os.getcwd(), "Sprites", "Enemies", "Repairer.png")).convert()
+        self.width = 28
+        self.height = 28
         self.index = index
         self.angle = 0
-        self.speed = 8
-        self.lives = 20
-        self.id = "Warper"
+        self.speed = 5
+        self.lives = 5
+        self.id = "Infiltrator"
         self.priority = 2
-        self.reward = 100
+        self.reward = 10
+        self.level = 3
         super().__init__(xy, distance=distance, shielded=shielded)
-
     
