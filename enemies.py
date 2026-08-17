@@ -21,8 +21,8 @@ class Enemy:
 
 class Speeder(Enemy):
     def __init__(self, xy, index=0, distance=0, shielded=False):
-        self.imp = pygame.image.load(os.path.join(os.getcwd(), "Sprites", "Enemies", "Speeder.png")).convert()
-        self.a_imp = pygame.image.load(os.path.join(os.getcwd(), "Sprites", "Enemies", "Speeder.png")).convert()
+        self.imp = pygame.image.load(os.path.join(os.getcwd(), "Sprites", "Enemies", "Speeder.png")).convert_alpha()
+        self.a_imp = pygame.image.load(os.path.join(os.getcwd(), "Sprites", "Enemies", "Speeder.png")).convert_alpha()
         self.width = 24
         self.height = 22
         self.index = index
@@ -37,8 +37,8 @@ class Speeder(Enemy):
 
 class Spawner(Enemy):
     def __init__(self, xy, index=0, distance=0, shielded=False):
-        self.imp = pygame.image.load(os.path.join(os.getcwd(), "Sprites", "Enemies", "Spawner.png")).convert()
-        self.a_imp = pygame.image.load(os.path.join(os.getcwd(), "Sprites", "Enemies", "Spawner.png")).convert()
+        self.imp = pygame.image.load(os.path.join(os.getcwd(), "Sprites", "Enemies", "Spawner.png")).convert_alpha()
+        self.a_imp = pygame.image.load(os.path.join(os.getcwd(), "Sprites", "Enemies", "Spawner.png")).convert_alpha()
         self.width = 72
         self.height = 88
         self.index = index
@@ -55,8 +55,8 @@ class Spawner(Enemy):
 
 class Accelerator(Enemy):
     def __init__(self, xy, index=0, distance=0, shielded=False):
-        self.imp = pygame.image.load(os.path.join(os.getcwd(), "Sprites", "Enemies", "Accelerator.png")).convert()
-        self.a_imp = pygame.image.load(os.path.join(os.getcwd(), "Sprites", "Enemies", "Accelerator.png")).convert()
+        self.imp = pygame.image.load(os.path.join(os.getcwd(), "Sprites", "Enemies", "Accelerator.png")).convert_alpha()
+        self.a_imp = pygame.image.load(os.path.join(os.getcwd(), "Sprites", "Enemies", "Accelerator.png")).convert_alpha()
         self.width = 22
         self.height = 22
         self.index = index
@@ -71,8 +71,8 @@ class Accelerator(Enemy):
 
 class Tanker(Enemy):
     def __init__(self, xy, index=0, distance=0, shielded=False):
-        self.imp = pygame.image.load(os.path.join(os.getcwd(), "Sprites", "Enemies", "Tanker.png")).convert()
-        self.a_imp = pygame.image.load(os.path.join(os.getcwd(), "Sprites", "Enemies", "Tanker.png")).convert()
+        self.imp = pygame.image.load(os.path.join(os.getcwd(), "Sprites", "Enemies", "Tanker.png")).convert_alpha()
+        self.a_imp = pygame.image.load(os.path.join(os.getcwd(), "Sprites", "Enemies", "Tanker.png")).convert_alpha()
         self.width = 30
         self.height = 27
         self.index = index
@@ -87,8 +87,8 @@ class Tanker(Enemy):
 
 class Dreadnought(Enemy):
     def __init__(self, xy, index=0, distance=0, shielded=False):
-        self.imp = pygame.image.load(os.path.join(os.getcwd(), "Sprites", "Enemies", "Dreadnought.png")).convert()
-        self.a_imp = pygame.image.load(os.path.join(os.getcwd(), "Sprites", "Enemies", "Dreadnought.png")).convert()
+        self.imp = pygame.image.load(os.path.join(os.getcwd(), "Sprites", "Enemies", "Dreadnought.png")).convert_alpha()
+        self.a_imp = pygame.image.load(os.path.join(os.getcwd(), "Sprites", "Enemies", "Dreadnought.png")).convert_alpha()
         self.width = 72
         self.height = 88
         self.index = index
@@ -105,16 +105,16 @@ class Dreadnought(Enemy):
 
 class Regenerator(Enemy):
     def __init__(self, xy, index=0, distance=0, shielded=False):
-        self.imp = pygame.image.load(os.path.join(os.getcwd(), "Sprites", "Enemies", "Regenerator.png")).convert()
-        self.a_imp = pygame.image.load(os.path.join(os.getcwd(), "Sprites", "Enemies", "Regenerator.png")).convert()
+        self.imp = pygame.image.load(os.path.join(os.getcwd(), "Sprites", "Enemies", "Regenerator.png")).convert_alpha()
+        self.a_imp = pygame.image.load(os.path.join(os.getcwd(), "Sprites", "Enemies", "Regenerator.png")).convert_alpha()
         self.width = 22
         self.height = 24
         self.index = index
         self.angle = 0
         self.speed = 6
-        self.lives = 5
+        self.lives = 4
         self.countdown = 0
-        self.countdown_reset = 45
+        self.countdown_reset = 90
         self.id = "Regenerator"
         self.priority = 1
         self.reward = 150
@@ -123,8 +123,8 @@ class Regenerator(Enemy):
 
 class Destroyer(Enemy):
     def __init__(self, xy, index=0, distance=0, shielded=False):
-        self.imp = pygame.image.load(os.path.join(os.getcwd(), "Sprites", "Enemies", "Destroyer.png")).convert()
-        self.a_imp = pygame.image.load(os.path.join(os.getcwd(), "Sprites", "Enemies", "Destroyer.png")).convert()
+        self.imp = pygame.image.load(os.path.join(os.getcwd(), "Sprites", "Enemies", "Destroyer.png")).convert_alpha()
+        self.a_imp = pygame.image.load(os.path.join(os.getcwd(), "Sprites", "Enemies", "Destroyer.png")).convert_alpha()
         self.width = 56
         self.height = 22
         self.index = index
@@ -139,8 +139,8 @@ class Destroyer(Enemy):
 
 class Repairer(Enemy):
     def __init__(self, xy, index=0, distance=0, shielded=False):
-        self.imp = pygame.image.load(os.path.join(os.getcwd(), "Sprites", "Enemies", "Repairer.png")).convert()
-        self.a_imp = pygame.image.load(os.path.join(os.getcwd(), "Sprites", "Enemies", "Repairer.png")).convert()
+        self.imp = pygame.image.load(os.path.join(os.getcwd(), "Sprites", "Enemies", "Repairer.png")).convert_alpha()
+        self.a_imp = pygame.image.load(os.path.join(os.getcwd(), "Sprites", "Enemies", "Repairer.png")).convert_alpha()
         self.width = 28
         self.height = 28
         self.index = index
@@ -155,8 +155,8 @@ class Repairer(Enemy):
 
 class Infiltrator(Enemy):
     def __init__(self, xy, index=0, distance=0, shielded=False):
-        self.imp = pygame.image.load(os.path.join(os.getcwd(), "Sprites", "Enemies", "Infiltrator.png")).convert()
-        self.a_imp = pygame.image.load(os.path.join(os.getcwd(), "Sprites", "Enemies", "Infiltrator.png")).convert()
+        self.imp = pygame.image.load(os.path.join(os.getcwd(), "Sprites", "Enemies", "Infiltrator.png")).convert_alpha()
+        self.a_imp = pygame.image.load(os.path.join(os.getcwd(), "Sprites", "Enemies", "Infiltrator.png")).convert_alpha()
         self.width = 24
         self.height = 22
         self.index = index

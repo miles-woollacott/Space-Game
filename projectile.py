@@ -20,8 +20,8 @@ class Projectile:
 
 class Bullet(Projectile):
     def __init__(self, xy, angle):
-        self.imp = pygame.image.load(os.path.join(os.getcwd(), "Sprites", "Bullet", "Bullet_basic.png")).convert()
-        self.a_imp = pygame.image.load(os.path.join(os.getcwd(), "Sprites", "Bullet", "Bullet_basic.png")).convert()
+        self.imp = pygame.image.load(os.path.join(os.getcwd(), "Sprites", "Bullet", "Bullet_basic.png")).convert_alpha()
+        self.a_imp = pygame.image.load(os.path.join(os.getcwd(), "Sprites", "Bullet", "Bullet_basic.png")).convert_alpha()
         self.width = 10
         self.height = 17
         self.pierce = 1
@@ -32,8 +32,8 @@ class Bullet(Projectile):
 
 class Blast(Projectile):
     def __init__(self, xy, angle):
-        self.imp = pygame.image.load(os.path.join(os.getcwd(), "Sprites", "Bullet", "Blast.png")).convert()
-        self.a_imp = pygame.image.load(os.path.join(os.getcwd(), "Sprites", "Bullet", "Blast.png")).convert()
+        self.imp = pygame.image.load(os.path.join(os.getcwd(), "Sprites", "Bullet", "Blast.png")).convert_alpha()
+        self.a_imp = pygame.image.load(os.path.join(os.getcwd(), "Sprites", "Bullet", "Blast.png")).convert_alpha()
         self.width = 10
         self.height = 18
         self.pierce = 18
@@ -44,8 +44,8 @@ class Blast(Projectile):
 
 class Missile(Projectile):
     def __init__(self, xy, angle):
-        self.imp = pygame.image.load(os.path.join(os.getcwd(), "Sprites", "Bullet", "Missile.png")).convert()
-        self.a_imp = pygame.image.load(os.path.join(os.getcwd(), "Sprites", "Bullet", "Missile.png")).convert()
+        self.imp = pygame.image.load(os.path.join(os.getcwd(), "Sprites", "Bullet", "Missile.png")).convert_alpha()
+        self.a_imp = pygame.image.load(os.path.join(os.getcwd(), "Sprites", "Bullet", "Missile.png")).convert_alpha()
         self.width = 16
         self.height = 32
         self.pierce = 1

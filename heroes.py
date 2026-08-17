@@ -27,8 +27,8 @@ class Hero:
 
 class Gunner(Hero):
     def __init__(self, xy, move=False):
-        self.imp = pygame.image.load(os.path.join(os.getcwd(), "Sprites", "Heroes", "Gunner.png")).convert()
-        self.a_imp = pygame.image.load(os.path.join(os.getcwd(), "Sprites", "Heroes", "Gunner.png")).convert()
+        self.imp = pygame.image.load(os.path.join(os.getcwd(), "Sprites", "Heroes", "Gunner.png")).convert_alpha()
+        self.a_imp = pygame.image.load(os.path.join(os.getcwd(), "Sprites", "Heroes", "Gunner.png")).convert_alpha()
         self.width = 30
         self.height = 26
         self.range = 140
@@ -44,8 +44,8 @@ class Gunner(Hero):
 
 class Howitzer(Hero):
     def __init__(self, xy, move=False):
-        self.imp = pygame.image.load(os.path.join(os.getcwd(), "Sprites", "Heroes", "Howitzer.png")).convert()
-        self.a_imp = pygame.image.load(os.path.join(os.getcwd(), "Sprites", "Heroes", "Howitzer.png")).convert()
+        self.imp = pygame.image.load(os.path.join(os.getcwd(), "Sprites", "Heroes", "Howitzer.png")).convert_alpha()
+        self.a_imp = pygame.image.load(os.path.join(os.getcwd(), "Sprites", "Heroes", "Howitzer.png")).convert_alpha()
         self.width = 30
         self.height = 61
         self.range = 320
@@ -61,8 +61,8 @@ class Howitzer(Hero):
 
 class Saboteur(Hero):
     def __init__(self, xy, move=False):
-        self.imp = pygame.image.load(os.path.join(os.getcwd(), "Sprites", "Heroes", "Saboteur.png")).convert()
-        self.a_imp = pygame.image.load(os.path.join(os.getcwd(), "Sprites", "Heroes", "Saboteur.png")).convert()
+        self.imp = pygame.image.load(os.path.join(os.getcwd(), "Sprites", "Heroes", "Saboteur.png")).convert_alpha()
+        self.a_imp = pygame.image.load(os.path.join(os.getcwd(), "Sprites", "Heroes", "Saboteur.png")).convert_alpha()
         self.width = 28
         self.height = 61
         self.range = 80
@@ -78,8 +78,8 @@ class Saboteur(Hero):
 
 class Seeker(Hero):
     def __init__(self, xy, move=False):
-        self.imp = pygame.image.load(os.path.join(os.getcwd(), "Sprites", "Heroes", "Seeker.png")).convert()
-        self.a_imp = pygame.image.load(os.path.join(os.getcwd(), "Sprites", "Heroes", "Seeker.png")).convert()
+        self.imp = pygame.image.load(os.path.join(os.getcwd(), "Sprites", "Heroes", "Seeker.png")).convert_alpha()
+        self.a_imp = pygame.image.load(os.path.join(os.getcwd(), "Sprites", "Heroes", "Seeker.png")).convert_alpha()
         self.width = 28
         self.height = 61
         self.range = 100000
@@ -95,8 +95,8 @@ class Seeker(Hero):
 
 class Leech(Hero):
     def __init__(self, xy, move=False):
-        self.imp = pygame.image.load(os.path.join(os.getcwd(), "Sprites", "Heroes", "Seeker.png")).convert()
-        self.a_imp = pygame.image.load(os.path.join(os.getcwd(), "Sprites", "Heroes", "Seeker.png")).convert()
+        self.imp = pygame.image.load(os.path.join(os.getcwd(), "Sprites", "Heroes", "Seeker.png")).convert_alpha()
+        self.a_imp = pygame.image.load(os.path.join(os.getcwd(), "Sprites", "Heroes", "Seeker.png")).convert_alpha()
         self.width = 28
         self.height = 61
         self.range = 100
@@ -112,8 +112,8 @@ class Leech(Hero):
 
 class Shredder(Hero):
     def __init__(self, xy, move=False):
-        self.imp = pygame.image.load(os.path.join(os.getcwd(), "Sprites", "Heroes", "Seeker.png")).convert()
-        self.a_imp = pygame.image.load(os.path.join(os.getcwd(), "Sprites", "Heroes", "Seeker.png")).convert()
+        self.imp = pygame.image.load(os.path.join(os.getcwd(), "Sprites", "Heroes", "Seeker.png")).convert_alpha()
+        self.a_imp = pygame.image.load(os.path.join(os.getcwd(), "Sprites", "Heroes", "Seeker.png")).convert_alpha()
         self.width = 28
         self.height = 61
         self.range = 300
@@ -129,8 +129,8 @@ class Shredder(Hero):
 
 class Orbiter(Hero):
     def __init__(self, xy, move=False):
-        self.imp = pygame.image.load(os.path.join(os.getcwd(), "Sprites", "Heroes", "Seeker.png")).convert()
-        self.a_imp = pygame.image.load(os.path.join(os.getcwd(), "Sprites", "Heroes", "Seeker.png")).convert()
+        self.imp = pygame.image.load(os.path.join(os.getcwd(), "Sprites", "Heroes", "Seeker.png")).convert_alpha()
+        self.a_imp = pygame.image.load(os.path.join(os.getcwd(), "Sprites", "Heroes", "Seeker.png")).convert_alpha()
         self.width = 28
         self.height = 61
         self.range = 200

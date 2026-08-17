@@ -193,6 +193,8 @@ while gameOn:
                         else:
                             if h.target == "First":
                                 h.target = "Strong"
+                            elif h.target == "Strong":
+                                h.target = "Unsabotaged"
                             else:
                                 h.target = "First"
                 
@@ -378,7 +380,7 @@ while gameOn:
             elif e.id == "Regenerator" and not e.sabotaged:
                 e.countdown = (e.countdown + 1) % e.countdown_reset
                 if e.countdown == 0:
-                    e.lives = min(round(2*ghost_enemies["Regenerator"].lives), e.lives+1)
+                    e.lives = min(ghost_enemies["Regenerator"].lives, e.lives)+1
             elif e.id == "Repairer":
                 for e1 in elst:
                     if e1.hitBox.intersects(e.hitBox) and e1.position != e.position:
@@ -420,18 +422,31 @@ while gameOn:
         for h in hlst:
             dist = 0
             strength = 0
+            fallback_dist = 0 # Remember the furthest enemy for our fallback
+            
             for e in elst:
                 # Check if the tower can see it, and if the enemy is revealed
                 if e.id == "Infiltrator":
                     if not e.revealed and not h.can_see_infiltrators:
                         continue
 
-                if distance(h.center, e.center) < h.range and not h.move and e.distance > dist:
-                    if h.target == "First":
+                # Notice we removed "and e.distance > dist" from this line so "Strong" works properly
+                if distance(h.center, e.center) < h.range and not h.move:
+                    
+                    if e.distance > fallback_dist:
+                        fallback_dist = e.distance # Always track the first enemy we see
+                        
+                    if h.target == "First" and e.distance > dist:
                         dist = e.distance
                     elif h.target == "Strong" and e.priority > strength:
                         dist = e.distance
                         strength = e.priority
+                    elif h.target == "Unsabotaged" and not e.sabotaged and e.distance > dist:
+                        dist = e.distance
+            
+            # THE FALLBACK: If we want unsabotaged, but didn't find any, default to First
+            if h.target == "Unsabotaged" and dist == 0 and fallback_dist > 0:
+                dist = fallback_dist
                         
             if h.id == "Saboteur" and h.super_upgrade:
                 for e in elst:
@@ -445,7 +460,8 @@ while gameOn:
                         
             for e in elst:
                 if dist > 0 and e.distance == dist:
-                    if h.target == "First" or (h.target == "Strong" and e.priority == strength):
+                    # ADDED checking for h.target == "Unsabotaged" so it actually fires!
+                    if h.target == "First" or (h.target == "Strong" and e.priority == strength) or h.target == "Unsabotaged":
                         h.angle = angle(h.center, e.center)
                         h.a_imp = pygame.transform.rotate(h.imp, h.angle)
                         if h.cooldown == 0:
@@ -514,16 +530,26 @@ while gameOn:
                     p.speed *= 1.024
                 dist = 0
                 strength = 0
+                fallback_dist = 0 # Fallback for missiles
+                
                 for e in elst:
-                    if e.distance > dist:
-                        if p.target == "First":
-                            dist = e.distance
-                        elif p.target == "Strong" and e.priority > strength:
-                            dist = e.distance
-                            strength = e.priority
+                    if e.distance > fallback_dist:
+                        fallback_dist = e.distance
+                        
+                    if p.target == "First" and e.distance > dist:
+                        dist = e.distance
+                    elif p.target == "Strong" and e.priority > strength:
+                        dist = e.distance
+                        strength = e.priority
+                    elif p.target == "Unsabotaged" and not e.sabotaged and e.distance > dist:
+                        dist = e.distance
+                        
+                if p.target == "Unsabotaged" and dist == 0 and fallback_dist > 0:
+                    dist = fallback_dist        
+                        
                 for e in elst:
-                    if e.distance == dist:
-                        if p.target == "First" or (p.target == "Strong" and e.priority == strength):
+                    if dist > 0 and e.distance == dist:
+                        if p.target == "First" or (p.target == "Strong" and e.priority == strength) or p.target == "Unsabotaged":
                             p.angle = angle(p.center, e.center)
                             p.a_imp = pygame.transform.rotate(p.imp, p.angle)
                             
@@ -633,6 +659,8 @@ while gameOn:
                     pygame.draw.circle(screen, (0, 200, 0), h.center, h.range, 3)
                 elif h.target == "Strong":
                     pygame.draw.circle(screen, (200, 200, 0), h.center, h.range, 3)
+                elif h.target == "Unsabotaged":
+                    pygame.draw.circle(screen, (0, 200, 200), h.center, h.range, 3)
 
                 # 2. Draw Tower Name and Kills
                 screen.blit(font.render(h.id.upper(), False, white), (1000, 50))
