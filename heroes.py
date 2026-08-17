@@ -71,7 +71,7 @@ class Saboteur(Hero):
         self.id = "Saboteur"
         self.cost = 500
         self.upgrades = [500, 2000, 1000, 2000, 2000, 3000] # Cost of upgrades
-        self.upgrade_text = ["Increase Range", "Increase Speed Reduction", "Cripple Accelerator", "Cripple Regenerator", "Cripple Spawners", "Reveal Infiltrators"]
+        self.upgrade_text = ["Range Up", "Speed Reduction Up", "Cripple Accelerator", "Cripple Regenerator", "Cripple Spawners", "Reveal Infiltrators"]
         self.super_upgrade_text = "What is targeting mode?"
         self.super_upgrade_cost = 12000
         super().__init__(xy, move)
@@ -87,52 +87,52 @@ class Seeker(Hero):
         self.cooldown_reset = 100
         self.id = "Seeker"
         self.cost = 400
-        self.upgrades = [800, 800] # Cost of upgrades
-        self.upgrade_text = ["Projectile Speed Up", "Increase Pierce"]
+        self.upgrades = [600, 600, 700, 600] # Cost of upgrades
+        self.upgrade_text = ["Projectile Speed Up", "Increase Pierce", "Attack Speed Up", "Damage Up"]
         self.super_upgrade_text = "It's not missing"
         self.super_upgrade_cost = 3000
         super().__init__(xy, move)
 
 class Leech(Hero):
     def __init__(self, xy, move=False):
-        self.imp = pygame.image.load(os.path.join(os.getcwd(), "Sprites", "Heroes", "Seeker.png")).convert_alpha()
-        self.a_imp = pygame.image.load(os.path.join(os.getcwd(), "Sprites", "Heroes", "Seeker.png")).convert_alpha()
-        self.width = 28
-        self.height = 61
+        self.imp = pygame.image.load(os.path.join(os.getcwd(), "Sprites", "Heroes", "Leech.png")).convert_alpha()
+        self.a_imp = pygame.image.load(os.path.join(os.getcwd(), "Sprites", "Heroes", "Leech.png")).convert_alpha()
+        self.width = 36
+        self.height = 44
         self.range = 100
         self.angle = 0
         self.cooldown_reset = 50
         self.id = "Leech"
         self.cost = 150
-        self.upgrades = [200, 200, 300, 200, 200, 200] # Cost of upgrades
-        self.upgrade_text = ["Chance to grant cash for hits", "Chance to grant lives for hits", "Chance to poison target", "Chance to crit for hits", "Awards cash for kills", "Awards lives for kills"]
+        self.upgrades = [200, 200, 300, 200, 1000, 200] # Cost of upgrades
+        self.upgrade_text = ["Chance to grant cash for hits", "Chance to grant lives for hits", "Chance to poison target", "Chance to crit for hits", "Increased chance success", "Awards cash for kills"]
         self.super_upgrade_text = "The root of all life"
         self.super_upgrade_cost = 5000
         super().__init__(xy, move)
 
 class Shredder(Hero):
     def __init__(self, xy, move=False):
-        self.imp = pygame.image.load(os.path.join(os.getcwd(), "Sprites", "Heroes", "Seeker.png")).convert_alpha()
-        self.a_imp = pygame.image.load(os.path.join(os.getcwd(), "Sprites", "Heroes", "Seeker.png")).convert_alpha()
-        self.width = 28
-        self.height = 61
+        self.imp = pygame.image.load(os.path.join(os.getcwd(), "Sprites", "Heroes", "Shredder.png")).convert_alpha()
+        self.a_imp = pygame.image.load(os.path.join(os.getcwd(), "Sprites", "Heroes", "Shredder.png")).convert_alpha()
+        self.width = 36
+        self.height = 36
         self.range = 300
         self.angle = 0
         self.cooldown_reset = 100
         self.id = "Shredder"
-        self.cost = 350
+        self.cost = 150
         self.upgrades = [100, 500, 300, 300, 500] # Cost of upgrades
-        self.upgrade_text = ["Increase Range", "Add Two Extra Frags", "Projectile Speed Up", "Homing Frags", "Attack Speed Up on Kills"]
+        self.upgrade_text = ["Range Up", "Adds Two Frags", "Projectile Speed Up", "Homing Frags", "Attack Speed Up on Kills"]
         self.super_upgrade_text = "Frags on frags"
         self.super_upgrade_cost = 3000
         super().__init__(xy, move)
 
 class Orbiter(Hero):
     def __init__(self, xy, move=False):
-        self.imp = pygame.image.load(os.path.join(os.getcwd(), "Sprites", "Heroes", "Seeker.png")).convert_alpha()
-        self.a_imp = pygame.image.load(os.path.join(os.getcwd(), "Sprites", "Heroes", "Seeker.png")).convert_alpha()
-        self.width = 28
-        self.height = 61
+        self.imp = pygame.image.load(os.path.join(os.getcwd(), "Sprites", "Heroes", "Orbiter.png")).convert_alpha()
+        self.a_imp = pygame.image.load(os.path.join(os.getcwd(), "Sprites", "Heroes", "Orbiter.png")).convert_alpha()
+        self.width = 36
+        self.height = 54
         self.range = 200
         self.angle = 0
         self.cooldown_reset = None

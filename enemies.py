@@ -51,6 +51,7 @@ class Spawner(Enemy):
         self.priority = 3
         self.reward = 20
         self.level = 4
+        self.spawn_count = 0
         super().__init__(xy, distance=distance, shielded=shielded)
 
 class Accelerator(Enemy):
@@ -101,6 +102,7 @@ class Dreadnought(Enemy):
         self.priority = 4
         self.reward = 100
         self.level = 5
+        self.spawn_count = 0
         super().__init__(xy, distance=distance, shielded=shielded)
 
 class Regenerator(Enemy):

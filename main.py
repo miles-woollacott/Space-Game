@@ -19,15 +19,28 @@ pygame.display.set_caption('Tower Defense')
 # Define the dimensions of screen object
 SCREEN_DIM = (1200, 800)
 screen = pygame.display.set_mode(SCREEN_DIM)
+
+# Background image
+star_bg = pygame.image.load(os.path.join("Sprites", "Background", "stars_texture.png")).convert()
+star_bg = pygame.transform.scale(star_bg, SCREEN_DIM)
+galaxy_img = pygame.image.load(os.path.join("Sprites", "Background", "galaxy.png")).convert_alpha()
+galaxy_rect = galaxy_img.get_rect()
+galaxy_ang = 0 # Rotates galaxy in background
  
 # Instantiate all objects
 hlst = []
 elst = []
-gicon = GunnerClicker(xy=[50, 752])
-hoicon = HowitzerClicker(xy=[100, 752])
+tower_clickers = [
+    (GunnerClicker(xy=[50, 752]), Gunner),
+    (HowitzerClicker(xy=[100, 752]), Howitzer),
+    (SaboteurClicker(xy=[150, 752]), Saboteur),
+    (SeekerClicker(xy=[200, 752]), Seeker),
+    (LeechClicker(xy=[250, 752]), Leech),
+    (ShredderClicker(xy=[300, 752]), Shredder),
+    (OrbiterClicker(xy=[350, 752]), Orbiter)
+]
+
 ticon = TrashClicker(xy=[450, 752])
-sicon = SaboteurClicker(xy=[150, 752])
-seicon = SeekerClicker(xy=[200, 752])
 projectiles = []
 paths = [Path([[0, 400], [200, 400], [200, 100], [500, 100], [500, 600], [200, 600], [200, 700], [1000, 700]]),
          Path([[0, 400], [200, 400], [200, 100], [500, 100], [500, 600], [200, 600], [200, 700], [1000, 700]]),
@@ -120,10 +133,8 @@ while gameOn:
                     for i in difficultybuttons:
                         if i.isClicked(): # Begin round
                             player = User(difficulty=i.text)
-                            gicon.cost = round(gicon.cost * difficulty_adj[player.difficulty])
-                            hoicon.cost = round(hoicon.cost * difficulty_adj[player.difficulty])
-                            sicon.cost = round(sicon.cost * difficulty_adj[player.difficulty])
-                            seicon.cost = round(seicon.cost * difficulty_adj[player.difficulty])
+                            for icon, _ in tower_clickers:
+                                icon.cost = round(icon.cost * difficulty_adj[player.difficulty])
                             level_spawnlist = generate_level(round=player.round, difficulty=player.difficulty,
                                                              ghost_names=ghost_names, ghost_priorities=ghost_priorities)
                             if player.difficulty == "Easy":
@@ -146,7 +157,14 @@ while gameOn:
                 if returnbutton.isClicked():
                     inInfo = False
                     inMenu = True
-
+    elif inPause:
+            for event in pygame.event.get():
+                if event.type == KEYDOWN:
+                    if event.key == K_p:
+                        inPause = not inPause
+                        inLevel = not inLevel
+                    elif event.key == K_ESCAPE:
+                        gameOn = False
     elif inLevel:
 
         ############ Mouse Controls ############
@@ -203,19 +221,12 @@ while gameOn:
                         hlst.remove(h)
                                 
                 hero_purchased = False
-                
-                if gicon.hitBox.isClicked(mouseloc):
-                    hlst.append(Gunner(mouseloc, move=True))
-                    hero_purchased = True
-                elif hoicon.hitBox.isClicked(mouseloc):
-                    hlst.append(Howitzer(mouseloc, move=True))
-                    hero_purchased = True
-                elif sicon.hitBox.isClicked(mouseloc):
-                    hlst.append(Saboteur(mouseloc, move=True))
-                    hero_purchased = True
-                elif seicon.hitBox.isClicked(mouseloc):
-                    hlst.append(Seeker(mouseloc, move=True))
-                    hero_purchased = True
+
+                for icon, hero_class in tower_clickers:
+                    if icon.hitBox.isClicked(mouseloc):
+                        hlst.append(hero_class(mouseloc, move=True))
+                        hero_purchased = True
+                        break
 
                 # Easier difficulty makes heroes cheaper
                 if hero_purchased:
@@ -270,12 +281,13 @@ while gameOn:
                                 h.upgraded[1] = True
                                 player.money -= h.upgrades[1]
                                 h.sell_value += h.upgrades[1]
-                                if h.id == "Gunner": h.cooldown_reset -= 10
-                                elif h.id == "Howitzer": h.cooldown_reset -= 32
+                                if h.id == "Gunner": h.cooldown_reset *= 2/3
+                                elif h.id == "Howitzer": h.cooldown_reset *= 3/5
                             elif event.key == K_3 and not h.upgraded[2] and player.money >= h.upgrades[2]:
                                 h.upgraded[2] = True
                                 player.money -= h.upgrades[2]
                                 h.sell_value += h.upgrades[2] / 2
+                                if h.id == "Seeker": h.cooldown_reset *= 3/5
                             elif event.key == K_4 and len(h.upgrades) > 3 and not h.upgraded[3] and player.money >= h.upgrades[3]:
                                 h.upgraded[3] = True
                                 player.money -= h.upgrades[3]
@@ -346,6 +358,11 @@ while gameOn:
                 sp.countdown = (sp.countdown + 1) % sp.countdown_reset
                 if sp.countdown < 7 and sp.countdown % 2 == 0:
                     new_enemies.append(Speeder([sp.center[0], sp.center[1]], index=sp.index+0, distance=sp.distance))
+                    sp.spawn_count += 1
+                    if sp.spawn_count < 10:
+                        new_enemies[-1].reward = new_enemies[-1].reward // 5
+                    else:
+                        new_enemies[-1].reward = 0
             elif sp.id == "Dreadnought" and not sp.sabotaged:
                 sp.countdown = (sp.countdown + 1) % sp.countdown_reset
                 if sp.countdown == 1:
@@ -356,6 +373,11 @@ while gameOn:
                     new_enemies.append(Spawner([sp.center[0], sp.center[1]], index=sp.index+0, distance=sp.distance))
                 elif sp.countdown == 16:
                     new_enemies.append(Regenerator([sp.center[0], sp.center[1]], index=sp.index+0, distance=sp.distance))
+                sp.spawn_count += 1
+                if sp.spawn_count < 10:
+                    new_enemies[-1].reward = new_enemies[-1].reward // 5
+                else:
+                    new_enemies[-1].reward = 0
         elst.extend(new_enemies)
 
         ############ Moving ############
@@ -429,8 +451,6 @@ while gameOn:
                 if e.id == "Infiltrator":
                     if not e.revealed and not h.can_see_infiltrators:
                         continue
-
-                # Notice we removed "and e.distance > dist" from this line so "Strong" works properly
                 if distance(h.center, e.center) < h.range and not h.move:
                     
                     if e.distance > fallback_dist:
@@ -444,7 +464,7 @@ while gameOn:
                     elif h.target == "Unsabotaged" and not e.sabotaged and e.distance > dist:
                         dist = e.distance
             
-            # THE FALLBACK: If we want unsabotaged, but didn't find any, default to First
+            # If we want unsabotaged, but didn't find any, default to First
             if h.target == "Unsabotaged" and dist == 0 and fallback_dist > 0:
                 dist = fallback_dist
                         
@@ -499,6 +519,8 @@ while gameOn:
                                 projectiles[-1].target = h.target
                                 if h.upgraded[0]: projectiles[-1].speed *= 2
                                 if h.upgraded[1]: projectiles[-1].pierce += 4
+                                if h.upgraded[3]:
+                                    projectiles[-1].damage *= 2
                                 if h.super_upgrade:
                                     projectiles[-1].accelerate = True
                                     projectiles[-1].speed *= 2
@@ -593,19 +615,16 @@ while gameOn:
         for e in elst: e.update()
         for h in hlst: h.update()
         for p in projectiles: p.update()
-    
-    elif inPause:
-        for event in pygame.event.get():
-            if event.type == KEYDOWN:
-                if event.key == K_p:
-                    inPause = not inPause
-                    inLevel = not inLevel
 
     ################
     ##### Draw #####
     ################
  
-    screen.fill((0, 0, 0))
+    screen.blit(star_bg, (0, 0))
+    galaxy_ang = (galaxy_ang+0.04)%360
+    galaxy_rimg = pygame.transform.rotate(galaxy_img, galaxy_ang)
+    galaxy_rect = galaxy_rimg.get_rect(center=(SCREEN_DIM[0] // 2, SCREEN_DIM[1] // 2))
+    screen.blit(galaxy_rimg, galaxy_rect)
 
     if inMenu:
         pygame.draw.rect(screen, offwhite, background.rect)
@@ -638,15 +657,14 @@ while gameOn:
 
         pygame.draw.rect(screen, (0, 0, 100), (SCREEN_DIM[0] - 200, 0, 200, SCREEN_DIM[1]))
         pygame.draw.rect(screen, white, (0, SCREEN_DIM[1] - 80, SCREEN_DIM[0], 80))
-        screen.blit(gicon.imp, gicon.position)
-        screen.blit(ssfont.render(str(gicon.cost), False, blue), (gicon.position[0], 786))
-        screen.blit(hoicon.imp, hoicon.position)
-        screen.blit(ssfont.render(str(hoicon.cost), False, blue), (hoicon.position[0], 786))
+        # Draw buyable tower icons & costs
+        for icon, _ in tower_clickers:
+            screen.blit(icon.imp, icon.position)
+            screen.blit(ssfont.render(str(icon.cost), False, blue), (icon.position[0], 786))
+
+        # Draw utility icons
         screen.blit(ticon.imp, ticon.position)
-        screen.blit(sicon.imp, sicon.position)
-        screen.blit(ssfont.render(str(sicon.cost), False, blue), (sicon.position[0], 786))
-        screen.blit(seicon.imp, seicon.position)
-        screen.blit(ssfont.render(str(seicon.cost), False, blue), (seicon.position[0], 786))
+        screen.blit(ssfont.render(str("Sell"), False, blue), (ticon.position[0]-10, 770))
         
         for h in hlst:
             if h.move and canPlace:
@@ -654,7 +672,7 @@ while gameOn:
             elif not canPlace and h.move:
                 pygame.draw.circle(screen, (200, 0, 0), h.center, h.range, 3)
             elif h.hover:
-                # 1. Draw Target Circle
+                # Draw targeting circle
                 if h.target == "First":
                     pygame.draw.circle(screen, (0, 200, 0), h.center, h.range, 3)
                 elif h.target == "Strong":
@@ -662,7 +680,7 @@ while gameOn:
                 elif h.target == "Unsabotaged":
                     pygame.draw.circle(screen, (0, 200, 200), h.center, h.range, 3)
 
-                # 2. Draw Tower Name and Kills
+                # Draw tower name and kills
                 screen.blit(font.render(h.id.upper(), False, white), (1000, 50))
                 kills_str = "Target: " + str(getattr(h, 'target', 0)) + " | Kills: " + str(getattr(h, 'kills', 0))
                 screen.blit(ssfont.render(kills_str, False, offwhite), (1000, 85))
@@ -670,7 +688,7 @@ while gameOn:
                 # Shift down slightly so upgrades don't overlap the kill count
                 current_y = 115
 
-                # 3. Determine and Draw Purchased Upgrades
+                # Determine and draw purchased upgrades
                 purchased_list = []
                 for i in range(len(h.upgraded)):
                     if h.upgraded[i]:
@@ -692,7 +710,7 @@ while gameOn:
                 
                 current_y += 20
                 
-                # 4. Draw Available Upgrades
+                # Draw available upgrades
                 if h.super_upgrade:
                     screen.blit(sfont.render("All upgrades purchased", False, green), (1000, current_y))
                 elif sum(h.upgraded) >= 3:

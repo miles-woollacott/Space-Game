@@ -63,4 +63,33 @@ class SeekerClicker(Clicker):
         self.id = "Seeker"
         self.text = "Shoots homing missiles."
         super().__init__(xy)
-        
+
+class LeechClicker(Clicker):
+    def __init__(self, xy):
+        self.imp = pygame.image.load(os.path.join(os.getcwd(), "Sprites", "Heroes", "Leech.png")).convert()
+        self.width = 36
+        self.height = 44
+        self.cost = Leech([0, 0]).cost
+        self.id = "Leech"
+        self.text = "Drains power from enemies."
+        super().__init__(xy)
+
+class ShredderClicker(Clicker):
+    def __init__(self, xy):
+        self.imp = pygame.image.load(os.path.join(os.getcwd(), "Sprites", "Heroes", "Shredder.png")).convert()
+        self.width = 36
+        self.height = 36
+        self.cost = Shredder([0, 0]).cost
+        self.id = "Shredder"
+        self.text = "Shoots multiple low-damage projectiles at once."
+        super().__init__(xy)
+
+class OrbiterClicker(Clicker):
+    def __init__(self, xy):
+        self.imp = pygame.image.load(os.path.join(os.getcwd(), "Sprites", "Heroes", "Orbiter.png")).convert()
+        self.width = 36
+        self.height = 54
+        self.cost = Orbiter([0, 0]).cost
+        self.id = "Orbiter"
+        self.text = "Projectile orbits tower."
+        super().__init__(xy)   

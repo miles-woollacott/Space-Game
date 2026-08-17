@@ -1,6 +1,2 @@
-1. Leech, Orbiter, Shredder need new sprites + updated game logic
-2. More upgrade paths for seeker, limit to 3 upgrades/tower?
-3. "Unsabotaged" targeting option
-4. Experience-based unlocking of upgrades (use kill counts)
-5. Enemies spawned from Dreadnoughts should yield less cash
-6. See if there's a way to remove black boxes from images?
+1. Leech, Orbiter, Shredder need correct game logic
+2. Experience-based unlocking of upgrades (use kill counts)
