@@ -28,7 +28,7 @@ def generate_level(round, difficulty, ghost_names, ghost_priorities):
     # Determine number of clusters and type of enemies in round
     if difficulty == "Easy":
         n = random.poisson(lam=sqrt(round))+1
-        if round >= 90:
+        if round >= 100:
             pass
         elif round < 20:
             ghost_priorities_p[ghost_priorities>1] = 0
@@ -36,9 +36,11 @@ def generate_level(round, difficulty, ghost_names, ghost_priorities):
             ghost_priorities_p[ghost_priorities>2] = 0
         elif round < 60:
             ghost_priorities_p[ghost_priorities>3] = 0
+        elif round < 90:
+            ghost_priorities_p[ghost_priorities>4] = 0
     elif difficulty == "Medium":
         n = random.poisson(lam=sqrt(round))+2
-        if round >= 75:
+        if round >= 90:
             pass
         elif round < 10:
             ghost_priorities_p[ghost_priorities>1] = 0
@@ -46,15 +48,19 @@ def generate_level(round, difficulty, ghost_names, ghost_priorities):
             ghost_priorities_p[ghost_priorities>2] = 0
         elif round < 50:
             ghost_priorities_p[ghost_priorities>3] = 0
+        elif round < 75:
+            ghost_priorities_p[ghost_priorities>4] = 0
     else:
         n = random.poisson(lam=sqrt(round))+3
         if round >= 50:
             pass
-        elif round < 5:
-            ghost_priorities_p[ghost_priorities>1] = 0
         elif round < 10:
-            ghost_priorities_p[ghost_priorities>2] = 0
+            ghost_priorities_p[ghost_priorities>1] = 0
         elif round < 20:
+            ghost_priorities_p[ghost_priorities>2] = 0
+        elif round < 30:
+            ghost_priorities_p[ghost_priorities>3] = 0
+        elif round < 40:
             ghost_priorities_p[ghost_priorities>3] = 0
     ghost_priorities_p = ghost_priorities_p / ghost_priorities_p.sum()
     sels = random.choice(ghost_names, size=n, p=ghost_priorities_p)

@@ -114,7 +114,7 @@ class Regenerator(Enemy):
         self.index = index
         self.angle = 0
         self.speed = 6
-        self.lives = 4
+        self.lives = 2
         self.countdown = 0
         self.countdown_reset = 90
         self.id = "Regenerator"
@@ -148,11 +148,11 @@ class Repairer(Enemy):
         self.index = index
         self.angle = 0
         self.speed = 8
-        self.lives = 10
+        self.lives = 6
         self.id = "Repairer"
         self.priority = 2
         self.reward = 100
-        self.level = 3
+        self.level = 5
         super().__init__(xy, distance=distance, shielded=shielded)
 
 class Infiltrator(Enemy):

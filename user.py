@@ -5,6 +5,11 @@ class User:
         self.money = money
         self.lives = lives
         self.round = round
-        self.max_ticks = 1000
-        self.leveltick = 0
         self.difficulty = difficulty
+        if self.difficulty == "Easy":
+            self.max_ticks = 1000
+        elif self.difficulty == "Medium":
+            self.max_ticks = 800
+        else:
+            self.max_ticks = 550
+        self.leveltick = 0

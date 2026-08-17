@@ -91,5 +91,5 @@ class OrbiterClicker(Clicker):
         self.height = 54
         self.cost = Orbiter([0, 0]).cost
         self.id = "Orbiter"
-        self.text = "Projectile orbits tower."
+        self.text = "Meteor orbits tower."
         super().__init__(xy)   

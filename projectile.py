@@ -52,7 +52,31 @@ class Missile(Projectile):
         self.speed = 10
         self.lifespan_reset = 100000
         self.id = "Missile"
-        self.despawn = True
         self.target = "First"
         self.accelerate = False
+        super().__init__(xy, angle)
+
+class Meteor(Projectile):
+    def __init__(self, xy, angle):
+            self.imp = pygame.image.load(os.path.join(os.getcwd(), "Sprites", "Bullet", "Meteor.png")).convert_alpha()
+            self.a_imp = pygame.image.load(os.path.join(os.getcwd(), "Sprites", "Bullet", "Meteor.png")).convert_alpha()
+            self.width = 23
+            self.height = 27
+            self.pierce = 0
+            self.speed = 3
+            self.lifespan_reset = 0
+            self.id = "Meteor"
+            super().__init__(xy, angle)
+
+class Shrapnel(Projectile):
+    def __init__(self, xy, angle):
+        self.imp = pygame.image.load(os.path.join(os.getcwd(), "Sprites", "Bullet", "Shrapnel.png")).convert_alpha()
+        self.a_imp = pygame.image.load(os.path.join(os.getcwd(), "Sprites", "Bullet", "Shrapnel.png")).convert_alpha()
+        self.width = 8
+        self.height = 12
+        self.pierce = 1
+        self.speed = 20
+        self.lifespan_reset = 300
+        self.id = "Shrapnel"
+        self.damage = 0.5
         super().__init__(xy, angle)

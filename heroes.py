@@ -12,7 +12,7 @@ class Hero:
         self.hitBox = HitBox(self.center, self.width, self.height)
         self.cooldown = 0
         self.move = move
-        self.target = "First" # First, strong, and unsabotaged
+        self.target = "First" # First, strong, and unsabotaged (Cwise, CCwise, and mixed for Orbiters)
         self.hover = False
         self.placed = False
         self.upgraded = [False for i in self.upgrades]
@@ -116,13 +116,13 @@ class Shredder(Hero):
         self.a_imp = pygame.image.load(os.path.join(os.getcwd(), "Sprites", "Heroes", "Shredder.png")).convert_alpha()
         self.width = 36
         self.height = 36
-        self.range = 300
+        self.range = 200
         self.angle = 0
-        self.cooldown_reset = 100
+        self.cooldown_reset = 10
         self.id = "Shredder"
         self.cost = 150
-        self.upgrades = [100, 500, 300, 300, 500] # Cost of upgrades
-        self.upgrade_text = ["Range Up", "Adds Two Frags", "Projectile Speed Up", "Homing Frags", "Attack Speed Up on Kills"]
+        self.upgrades = [500, 300, 300, 500, 500, 500] # Cost of upgrades
+        self.upgrade_text = ["Adds Two Frags", "Projectile Speed Up", "Homing Frags", "Attack Speed Up on Kills", "Pierce Up", "Damage Up"]
         self.super_upgrade_text = "Frags on frags"
         self.super_upgrade_cost = 3000
         super().__init__(xy, move)
@@ -133,13 +133,13 @@ class Orbiter(Hero):
         self.a_imp = pygame.image.load(os.path.join(os.getcwd(), "Sprites", "Heroes", "Orbiter.png")).convert_alpha()
         self.width = 36
         self.height = 54
-        self.range = 200
+        self.range = 100
         self.angle = 0
         self.cooldown_reset = None
         self.id = "Orbiter"
         self.cost = 500
         self.upgrades = [1000, 800, 1000, 2000] # Cost of upgrades
-        self.upgrade_text = ["Adds Another Orb", "Orb Speed Increase", "Orb Size Increase", "Slows Enemies on Contact"]
+        self.upgrade_text = ["Adds Another Meteor", "Meteor Speed Increase", "Meteor Size Increase", "Slows Enemies on Contact"]
         self.super_upgrade_text = "The Wheel"
         self.super_upgrade_cost = 6000
         super().__init__(xy, move)

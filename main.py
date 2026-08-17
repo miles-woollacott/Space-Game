@@ -209,12 +209,22 @@ while gameOn:
                                 
                         # Change target priority if clicked
                         else:
-                            if h.target == "First":
-                                h.target = "Strong"
-                            elif h.target == "Strong":
-                                h.target = "Unsabotaged"
-                            else:
-                                h.target = "First"
+                            if h.id == "Orbiter":
+                                # Count how many meteors belong to this specific Orbiter
+                                meteor_count = sum(1 for p in projectiles if getattr(p, 'parent', None) == h and getattr(p, 'id', '') == "Meteor")
+                                if h.target == "Cwise":
+                                    h.target = "CCwise"
+                                elif h.target == "CCwise" and meteor_count > 1:
+                                    h.target = "Mixed"
+                                else:
+                                    h.target = "Cwise"
+                            else: # Standard targeting for other towers
+                                if h.target == "First":
+                                    h.target = "Strong"
+                                elif h.target == "Strong":
+                                    h.target = "Unsabotaged"
+                                else:
+                                    h.target = "First"
                 
                 for h in heroes_to_remove:
                     if h in hlst:
@@ -225,6 +235,15 @@ while gameOn:
                 for icon, hero_class in tower_clickers:
                     if icon.hitBox.isClicked(mouseloc):
                         hlst.append(hero_class(mouseloc, move=True))
+                        if hlst[-1].id == "Orbiter": # Assign orbiter special targeting and add meteor
+                            hlst[-1].target = "Cwise"
+                            meteor = Meteor([mouseloc[0]+50, mouseloc[1]], 0)
+                            meteor.parent = hlst[-1]
+                            meteor.orbit_angle = 0
+                            meteor.radius = hlst[-1].range
+                            meteor.meteor_index = 0 # Helps track mixed direction
+                            projectiles.append(meteor)
+                            
                         hero_purchased = True
                         break
 
@@ -252,7 +271,7 @@ while gameOn:
                     elif event.key == K_i: elst.append(Repairer(level.get_start()))
                     elif event.key == K_o: elst.append(Infiltrator(level.get_start()))
                     elif event.key == K_c: elst = []
-                    elif event.key == K_m: player.money += 1000
+                    elif event.key == K_m: player.money += 10000
                     elif event.key == K_l: player.lives += 100
                 
                 if event.key == K_s:
@@ -269,6 +288,38 @@ while gameOn:
                             h.sell_value += h.super_upgrade_cost / 2
                             if h.id == "Gunner": h.cooldown_reset = 2
                             elif h.id == "Seeker": h.cooldown_reset /= 4
+                            elif h.id == "Orbiter":
+                                # Find existing meteor angle(s) to offset by 180 degrees
+                                existing_meteors = [p for p in projectiles if getattr(p, 'id', '') == "Meteor" and getattr(p, 'parent', None) == h]
+                                
+                                if len(existing_meteors) == 1: # Add in three more
+                                    base_angles = [(existing_meteors[0].orbit_angle + 90) % 360,
+                                                   (existing_meteors[0].orbit_angle + 180) % 360,
+                                                   (existing_meteors[0].orbit_angle + 270) % 360]
+                                    meteor_indices = [1, 0, 1]
+                                else:
+                                    base_angles = [(existing_meteors[0].orbit_angle + 60) % 360,
+                                                   (existing_meteors[0].orbit_angle + 120) % 360,
+                                                   (existing_meteors[0].orbit_angle + 240) % 360,
+                                                   (existing_meteors[0].orbit_angle + 300) % 360]
+                                    meteor_indices = [1, 0, 0, 1]
+                                for meteor in range(len(base_angles)):
+                                    second_meteor = Meteor([h.center[0], h.center[1]], 0)
+                                    second_meteor.parent = h
+                                    second_meteor.orbit_angle = base_angles[meteor]
+                                    second_meteor.radius = h.range
+                                    second_meteor.meteor_index = meteor_indices[meteor]
+                                    if h.upgraded[2]:
+                                        scale_factor = 2
+                                        new_w = int(second_meteor.imp.get_width() * scale_factor)
+                                        new_h = int(second_meteor.imp.get_height() * scale_factor)
+                                        
+                                        second_meteor.imp = pygame.transform.scale(second_meteor.imp, (new_w, new_h))
+                                        second_meteor.a_imp = pygame.transform.scale(second_meteor.a_imp, (new_w, new_h))
+                                        
+                                        if hasattr(second_meteor, 'hitBox') and hasattr(second_meteor.hitBox, 'scale'):
+                                            second_meteor.hitBox.scale(scale_factor)
+                                    projectiles.append(second_meteor)
                         # Standard upgrade cap logic (limits to 3 purchases max)
                         elif sum(h.upgraded) < 3:
                             if event.key == K_1 and not h.upgraded[0] and player.money >= h.upgrades[0]:
@@ -277,6 +328,32 @@ while gameOn:
                                 h.sell_value += h.upgrades[0]
                                 if h.id == "Gunner": h.range += 50
                                 elif h.id == "Saboteur": h.range += 20
+                                elif h.id == "Orbiter":
+                                    # Find existing meteor angle to offset by 180 degrees
+                                    existing_meteors = [p for p in projectiles if getattr(p, 'id', '') == "Meteor" and getattr(p, 'parent', None) == h]
+                                    
+                                    base_angle = 0
+                                    if len(existing_meteors) > 0:
+                                        base_angle = (existing_meteors[0].orbit_angle + 180) % 360
+                                    
+                                    # Spawn second meteor
+                                    second_meteor = Meteor([h.center[0], h.center[1]], 0)
+                                    second_meteor.parent = h
+                                    second_meteor.orbit_angle = base_angle
+                                    second_meteor.radius = h.range
+                                    second_meteor.meteor_index = 1  # Index 1 will rotate opposite direction if target == "Mixed"
+                                    second_meteor.a_imp = second_meteor.imp
+                                    if h.upgraded[2]:
+                                        scale_factor = 2
+                                        new_w = int(second_meteor.imp.get_width() * scale_factor)
+                                        new_h = int(second_meteor.imp.get_height() * scale_factor)
+                                        
+                                        second_meteor.imp = pygame.transform.scale(second_meteor.imp, (new_w, new_h))
+                                        second_meteor.a_imp = pygame.transform.scale(second_meteor.a_imp, (new_w, new_h))
+                                        
+                                        if hasattr(second_meteor, 'hitBox') and hasattr(second_meteor.hitBox, 'scale'):
+                                            second_meteor.hitBox.scale(scale_factor)
+                                    projectiles.append(second_meteor)
                             elif event.key == K_2 and not h.upgraded[1] and player.money >= h.upgrades[1]:
                                 h.upgraded[1] = True
                                 player.money -= h.upgrades[1]
@@ -288,6 +365,23 @@ while gameOn:
                                 player.money -= h.upgrades[2]
                                 h.sell_value += h.upgrades[2] / 2
                                 if h.id == "Seeker": h.cooldown_reset *= 3/5
+                                elif h.id == "Orbiter":
+                                    scale_factor = 1.75  # Scale size by 75%
+                                    
+                                    for p in projectiles:
+                                        if getattr(p, 'id', '') == "Meteor" and getattr(p, 'parent', None) == h:
+                                            new_width = int(p.imp.get_width() * scale_factor)
+                                            new_height = int(p.imp.get_height() * scale_factor)
+                                            p.imp = pygame.transform.scale(p.imp, (new_width, new_height))
+                                            p.a_imp = pygame.transform.scale(p.a_imp, (new_width, new_height))
+                                            if hasattr(p, 'width') and hasattr(p, 'height'):
+                                                p.width = new_width
+                                                p.height = new_height
+                                            if hasattr(p, 'hitBox') and hasattr(p.hitBox, 'scale'):
+                                                p.hitBox.scale(scale_factor)
+                                            elif hasattr(p, 'hitBox') and hasattr(p.hitBox, 'width'):
+                                                p.hitBox.width = new_width
+                                                p.hitBox.height = new_height
                             elif event.key == K_4 and len(h.upgrades) > 3 and not h.upgraded[3] and player.money >= h.upgrades[3]:
                                 h.upgraded[3] = True
                                 player.money -= h.upgrades[3]
@@ -373,6 +467,8 @@ while gameOn:
                     new_enemies.append(Spawner([sp.center[0], sp.center[1]], index=sp.index+0, distance=sp.distance))
                 elif sp.countdown == 16:
                     new_enemies.append(Regenerator([sp.center[0], sp.center[1]], index=sp.index+0, distance=sp.distance))
+                else:
+                    continue
                 sp.spawn_count += 1
                 if sp.spawn_count < 10:
                     new_enemies[-1].reward = new_enemies[-1].reward // 5
@@ -480,7 +576,7 @@ while gameOn:
                         
             for e in elst:
                 if dist > 0 and e.distance == dist:
-                    # ADDED checking for h.target == "Unsabotaged" so it actually fires!
+                    # Checks for h.target == "Unsabotaged" so it actually fires
                     if h.target == "First" or (h.target == "Strong" and e.priority == strength) or h.target == "Unsabotaged":
                         h.angle = angle(h.center, e.center)
                         h.a_imp = pygame.transform.rotate(h.imp, h.angle)
@@ -525,7 +621,22 @@ while gameOn:
                                     projectiles[-1].accelerate = True
                                     projectiles[-1].speed *= 2
                                     projectiles[-1].pierce *= 3
-
+                            elif h.id == "Shredder":
+                                angle_central = h.angle + 2 * (1 - 2 * int(h.angle < 0))
+                                if h.upgraded[0]:
+                                    angles = [angle_central-45, angle_central-22.5, angle_central, angle_central+22.5, angle_central+45]
+                                else:
+                                    angles = [angle_central-30, angle_central, angle_central+30]
+                                for a in angles:
+                                    projectiles.append(Shrapnel(xy=[h.center[0], h.center[1]], angle=a))
+                                    if h.upgraded[1]:
+                                        projectiles[-1].speed *= 2.5
+                                    if h.upgraded[4]:
+                                        projectiles[-1].pierce += 1
+                                    if h.upgraded[5]:
+                                        projectiles[-1].damage *= 2
+                                    projectiles[-1].parent = h
+                                    projectiles[-1].a_imp = pygame.transform.rotate(projectiles[-1].imp, projectiles[-1].angle)
                 if e.id == "Destroyer" and e.hitBox.intersects(h.hitBox):
                     dead_enemies.add(e)
                     dead_heroes.add(h)
@@ -541,69 +652,101 @@ while gameOn:
         ########### Projectiles ###########
 
         if len(elst) == 0:
-            projectiles = []
+            projectiles = [p for p in projectiles if getattr(p, 'id', '') == "Meteor"]
 
         surviving_projectiles = []
 
         for p in projectiles:
-            d = anglemove(p.angle)
-            if p.id == "Missile":
-                if p.accelerate and p.speed < 40:
-                    p.speed *= 1.024
-                dist = 0
-                strength = 0
-                fallback_dist = 0 # Fallback for missiles
-                
-                for e in elst:
-                    if e.distance > fallback_dist:
-                        fallback_dist = e.distance
-                        
-                    if p.target == "First" and e.distance > dist:
-                        dist = e.distance
-                    elif p.target == "Strong" and e.priority > strength:
-                        dist = e.distance
-                        strength = e.priority
-                    elif p.target == "Unsabotaged" and not e.sabotaged and e.distance > dist:
-                        dist = e.distance
-                        
-                if p.target == "Unsabotaged" and dist == 0 and fallback_dist > 0:
-                    dist = fallback_dist        
-                        
-                for e in elst:
-                    if dist > 0 and e.distance == dist:
-                        if p.target == "First" or (p.target == "Strong" and e.priority == strength) or p.target == "Unsabotaged":
-                            p.angle = angle(p.center, e.center)
-                            p.a_imp = pygame.transform.rotate(p.imp, p.angle)
-                            
-            p.center[0] -= p.speed * d[0]
-            p.center[1] -= p.speed * d[1]
-            p.lifespan += 1
 
-            if (p.lifespan >= p.lifespan_reset or 
+            if getattr(p, 'id', '') == "Meteor": # Meteor Orbital Movement
+                if not hasattr(p, 'parent') or p.parent not in hlst:
+                    continue
+                
+                direction = 1
+                if p.parent.target == "CCwise":
+                    direction = -1
+                elif p.parent.target == "Mixed":
+                    direction = 1 if getattr(p, 'meteor_index', 0) % 2 == 0 else -1
+                base_speed = getattr(p, 'speed', 5)
+                if len(p.parent.upgraded) > 1 and p.parent.upgraded[1]:
+                    base_speed *= 2.5
+                
+                p.orbit_angle = (getattr(p, 'orbit_angle', 0) + direction * base_speed) % 360
+                d = anglemove(p.orbit_angle) 
+                
+                orbit_radius = getattr(p.parent, 'range', getattr(p, 'radius', 50))
+                
+                p.center[0] = p.parent.center[0] + orbit_radius * d[0]
+                p.center[1] = p.parent.center[1] + orbit_radius * d[1]
+                
+                p.position = [p.center[0] - p.imp.get_width() // 2, p.center[1] - p.imp.get_height() // 2]
+                p.lifespan = 0
+            else:
+                d = anglemove(p.angle)
+                if p.id == "Missile":
+                    if p.accelerate and p.speed < 40:
+                        p.speed *= 1.024
+                    dist = 0
+                    strength = 0
+                    fallback_dist = 0
+                    
+                    for e in elst:
+                        if e.distance > fallback_dist:
+                            fallback_dist = e.distance
+                            
+                        if p.target == "First" and e.distance > dist:
+                            dist = e.distance
+                        elif p.target == "Strong" and e.priority > strength:
+                            dist = e.distance
+                            strength = e.priority
+                        elif p.target == "Unsabotaged" and not e.sabotaged and e.distance > dist:
+                            dist = e.distance
+                            
+                    if p.target == "Unsabotaged" and dist == 0 and fallback_dist > 0:
+                        dist = fallback_dist        
+                            
+                    for e in elst:
+                        if dist > 0 and e.distance == dist:
+                            if p.target == "First" or (p.target == "Strong" and e.priority == strength) or p.target == "Unsabotaged":
+                                p.angle = angle(p.center, e.center)
+                                p.a_imp = pygame.transform.rotate(p.imp, p.angle)
+                                
+                p.center[0] -= p.speed * d[0]
+                p.center[1] -= p.speed * d[1]
+                p.lifespan += 1
+
+            # Despawning bounds (Bypass for Meteor)
+            if p.id != "Meteor" and (p.lifespan >= p.lifespan_reset or 
                 p.center[1] < 0 or p.center[0] < 0 or 
                 p.center[1] > 720 or p.center[0] > SCREEN_DIM[0]):
                 continue
 
+            # Collision Logic
             for e in elst[:]:
                 if p.hitBox.intersects(e.hitBox):
-                    p.pierce -= 1
+                    if p.id != "Meteor":
+                        p.pierce -= 1
+                        
                     e.lives -= p.damage
                     
                     if e.lives <= 0:
                         player.money += e.reward
                         
-                        # Award kill to the parent tower
                         if hasattr(p, 'parent') and p.parent in hlst:
                             current_kills = getattr(p.parent, 'kills', 0) 
                             p.parent.kills = current_kills + 1
+                            if p.parent.id == "Shredder" and p.parent.upgraded[3]:
+                                if p.parent.kills % 50 == 0 and p.parent.cooldown_reset > 1:
+                                    p.parent.cooldown_reset -= 1
                             
                         if e in elst:
                             elst.remove(e)
                             
-                    if p.pierce <= 0:
+                    if p.pierce <= 0 and p.id != "Meteor":
                         break
 
-            if p.pierce > 0:
+            # Keep meteors alive always, keep standard projectiles alive if they have pierce remaining
+            if p.pierce > 0 or getattr(p, 'id', '') == "Meteor":
                 surviving_projectiles.append(p)
 
         projectiles = surviving_projectiles
@@ -647,14 +790,14 @@ while gameOn:
     elif inLevel or inPause:
 
         # Draw grid lines
+        '''
         for i in range(13):
             pygame.draw.line(screen, white, [i * 100, 0], [i * 100, 800])
         for i in range(9):
             pygame.draw.line(screen, white, [0, i * 100], [1200, i * 100])
-
+        '''
         for i in range(len(level.points) - 1):
-            pygame.draw.line(screen, (255, 0, 255), level.points[i], level.points[i + 1], width=4)
-
+            pygame.draw.line(screen, (10, 10, 10), level.points[i], level.points[i + 1], width=4)
         pygame.draw.rect(screen, (0, 0, 100), (SCREEN_DIM[0] - 200, 0, 200, SCREEN_DIM[1]))
         pygame.draw.rect(screen, white, (0, SCREEN_DIM[1] - 80, SCREEN_DIM[0], 80))
         # Draw buyable tower icons & costs
