@@ -274,10 +274,11 @@ while gameOn:
                                 player.money -= h.upgrades[4]
                                 h.sell_value += h.upgrades[4] / 2
                                 if h.id == "Gunner": h.can_see_infiltrators = True
-                            elif event.key == K_6 and len(h.upgrades) > 5 and not h.upgraded[5] and player.money >= h.upgrades[5]:
+                            elif (event.key == K_6 or event.key == K_KP6) and len(h.upgrades) > 5 and not h.upgraded[5] and player.money >= h.upgrades[5]:
                                 h.upgraded[5] = True
                                 player.money -= h.upgrades[5]
                                 h.sell_value += h.upgrades[5] / 2
+                                if h.id == "Saboteur": h.can_see_infiltrators = True
                 if event.key == K_SPACE and len(elst) == 0 and not sandbox:
                     player.round += 1
                     if player.round > maxrounds:
@@ -402,13 +403,19 @@ while gameOn:
         dead_heroes = set()
 
         for h in hlst:
+            if h.id == "Saboteur" and len(h.upgraded) > 5 and h.upgraded[5] and not h.move:
+                for e in elst:
+                    if e.id == "Infiltrator" and distance(h.center, e.center) < h.range:
+                        e.revealed = True
+
+        for h in hlst:
             dist = 0
             strength = 0
             for e in elst:
-                # Safely check if the tower can see it, and if the enemy is revealed
+                # Check if the tower can see it, and if the enemy is revealed
                 if e.id == "Infiltrator":
-                    if not h.can_see_infiltrators and not e.revealed:
-                        continue # Use continue to completely skip targeting this enemy
+                    if not e.revealed and not h.can_see_infiltrators:
+                        continue
 
                 if distance(h.center, e.center) < h.range and not h.move and e.distance > dist:
                     if h.target == "First":
@@ -419,17 +426,15 @@ while gameOn:
                         
             if h.id == "Saboteur" and h.super_upgrade:
                 for e in elst:
-                    # Also skip Infiltrators for the Saboteur's AOE effect
                     if e.id == "Infiltrator":
-                        if not h.revealed and not h.can_see_infiltrators:
+                        if not e.revealed and not h.can_see_infiltrators:
                             continue
                             
-                    if e.id != "Repairer" and not e.repaired and distance(h.center, e.center) < h.range and not h.move and e.id != "Saboteur":
+                    if e.id != "Repairer" and not e.repaired and distance(h.center, e.center) < h.range and not h.move:
                         e.speed = max(0.2, e.speed*0.9)
                         e.sabotaged = True
                         
             for e in elst:
-                # Added 'dist > 0' check so it doesn't try to shoot at the 0/0 spawn point when no target is found
                 if dist > 0 and e.distance == dist:
                     if h.target == "First" or (h.target == "Strong" and e.priority == strength):
                         h.angle = angle(h.center, e.center)
@@ -439,6 +444,7 @@ while gameOn:
                             if h.id == "Gunner":
                                 projectiles.append(Bullet(xy=[h.center[0], h.center[1]],
                                                     angle=h.angle + 2 * (1 - 2 * int(h.angle < 0))))
+                                projectiles[-1].parent = h
                                 projectiles[-1].a_imp = pygame.transform.rotate(projectiles[-1].imp, projectiles[-1].angle)
                                 if h.upgraded[0]: projectiles[-1].speed *= 1.6
                                 if h.upgraded[3]: projectiles[-1].pierce += 2
@@ -446,8 +452,11 @@ while gameOn:
                             elif h.id == "Howitzer":
                                 projectiles.append(Blast(xy=[h.center[0], h.center[1]],
                                                     angle=h.angle + 2 * (1 - 2 * int(h.angle < 0))))
+                                projectiles[-1].parent = h
                                 if h.upgraded[2]:
                                     projectiles[-1].imp = pygame.transform.scale(projectiles[-1].imp, (projectiles[-1].width * 2, projectiles[-1].height * 2))
+                                if h.upgraded[3]:
+                                    projectiles[-1].damage *= 2
                                 projectiles[-1].a_imp = pygame.transform.rotate(projectiles[-1].imp, projectiles[-1].angle)
                                 if h.upgraded[0]: projectiles[-1].speed *= 1.6
                                 if h.super_upgrade: projectiles[-1].pierce += 1000
@@ -461,6 +470,7 @@ while gameOn:
                             elif h.id == "Seeker":
                                 projectiles.append(Missile(xy=[h.center[0], h.center[1]],
                                                     angle=h.angle + 2 * (1 - 2 * int(h.angle < 0))))
+                                projectiles[-1].parent = h
                                 projectiles[-1].target = h.target
                                 if h.upgraded[0]: projectiles[-1].speed *= 2
                                 if h.upgraded[1]: projectiles[-1].pierce += 4
@@ -475,11 +485,6 @@ while gameOn:
 
             if h.cooldown > 0:
                 h.cooldown = (h.cooldown + 1) % h.cooldown_reset
-
-        for e in dead_enemies:
-            if e in elst: elst.remove(e)
-        for h in dead_heroes:
-            if h in hlst: hlst.remove(h)
 
         for e in dead_enemies:
             if e in elst: elst.remove(e)
@@ -525,10 +530,16 @@ while gameOn:
             for e in elst[:]:
                 if p.hitBox.intersects(e.hitBox):
                     p.pierce -= 1
-                    e.lives -= 1
+                    e.lives -= p.damage
                     
                     if e.lives <= 0:
                         player.money += e.reward
+                        
+                        # Award kill to the parent tower
+                        if hasattr(p, 'parent') and p.parent in hlst:
+                            current_kills = getattr(p.parent, 'kills', 0) 
+                            p.parent.kills = current_kills + 1
+                            
                         if e in elst:
                             elst.remove(e)
                             
@@ -614,8 +625,13 @@ while gameOn:
                 elif h.target == "Strong":
                     pygame.draw.circle(screen, (200, 200, 0), h.center, h.range, 3)
 
-                # 2. Draw Tower Name
+                # 2. Draw Tower Name and Kills
                 screen.blit(font.render(h.id.upper(), False, white), (1000, 50))
+                kills_str = "Kills: " + str(getattr(h, 'kills', 0))
+                screen.blit(ssfont.render(kills_str, False, offwhite), (1000, 85))
+                
+                # Make sure to shift current_y down slightly so upgrades don't overlap the kill count!
+                current_y = 115
 
                 # 3. Determine and Draw Purchased Upgrades
                 purchased_list = []
@@ -625,8 +641,7 @@ while gameOn:
                 
                 if h.super_upgrade:
                     purchased_list.append(h.super_upgrade_text)
-                
-                current_y = 85
+
                 if len(purchased_list) == 0:
                     screen.blit(ssfont.render("Not upgraded", False, white), (1000, current_y))
                     current_y += 18

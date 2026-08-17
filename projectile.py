@@ -12,6 +12,7 @@ class Projectile:
         self.center = xy
         self.position = [xy[0]-self.width/2, xy[1]-self.height/2]
         self.hitBox = HitBox(self.center, self.width, self.height)
+        self.damage = 1
 
     def update(self):
         self.position = [self.center[0]-self.width/2, self.center[1]-self.height/2]

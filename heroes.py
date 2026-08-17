@@ -18,7 +18,7 @@ class Hero:
         self.upgraded = [False for i in self.upgrades]
         self.super_upgrade = False
         self.sell_value = 0
-        self.kill_count = 0
+        self.kills = 0
         self.can_see_infiltrators = False
     
     def update(self):
@@ -53,8 +53,8 @@ class Howitzer(Hero):
         self.cooldown_reset = 80
         self.id = "Howitzer"
         self.cost = 200
-        self.upgrades = [100, 100, 200] # Cost of upgrades
-        self.upgrade_text = ["Projectile Speed Up", "Attack Speed Up", "Projectile Size Up"]
+        self.upgrades = [100, 100, 200, 150] # Cost of upgrades
+        self.upgrade_text = ["Projectile Speed Up", "Attack Speed Up", "Projectile Size Up", "Damage Up"]
         self.super_upgrade_text = "Nothing can stop it."
         self.super_upgrade_cost = 2000
         super().__init__(xy, move)
@@ -70,8 +70,8 @@ class Saboteur(Hero):
         self.cooldown_reset = 1
         self.id = "Saboteur"
         self.cost = 500
-        self.upgrades = [500, 2000, 1000, 2000, 2000] # Cost of upgrades
-        self.upgrade_text = ["Increase Range", "Increase Speed Reduction", "Cripple Accelerator", "Cripple Regenerator", "Cripple Spawners"]
+        self.upgrades = [500, 2000, 1000, 2000, 2000, 3000] # Cost of upgrades
+        self.upgrade_text = ["Increase Range", "Increase Speed Reduction", "Cripple Accelerator", "Cripple Regenerator", "Cripple Spawners", "Reveal Infiltrators"]
         self.super_upgrade_text = "What is targeting mode?"
         self.super_upgrade_cost = 12000
         super().__init__(xy, move)
@@ -87,7 +87,7 @@ class Seeker(Hero):
         self.cooldown_reset = 100
         self.id = "Seeker"
         self.cost = 400
-        self.upgrades = [1000, 1000] # Cost of upgrades
+        self.upgrades = [800, 800] # Cost of upgrades
         self.upgrade_text = ["Projectile Speed Up", "Increase Pierce"]
         self.super_upgrade_text = "It's not missing"
         self.super_upgrade_cost = 3000
@@ -99,15 +99,15 @@ class Leech(Hero):
         self.a_imp = pygame.image.load(os.path.join(os.getcwd(), "Sprites", "Heroes", "Seeker.png")).convert()
         self.width = 28
         self.height = 61
-        self.range = 100000
+        self.range = 100
         self.angle = 0
-        self.cooldown_reset = 100
+        self.cooldown_reset = 50
         self.id = "Leech"
-        self.cost = 400
-        self.upgrades = [1000, 1000] # Cost of upgrades
-        self.upgrade_text = ["Projectile Speed Up", "Increase Pierce"]
-        self.super_upgrade_text = "It's not missing"
-        self.super_upgrade_cost = 3000
+        self.cost = 150
+        self.upgrades = [200, 200, 300, 200, 200, 200] # Cost of upgrades
+        self.upgrade_text = ["Chance to grant cash for hits", "Chance to grant lives for hits", "Chance to poison target", "Chance to crit for hits", "Awards cash for kills", "Awards lives for kills"]
+        self.super_upgrade_text = "The root of all life"
+        self.super_upgrade_cost = 5000
         super().__init__(xy, move)
 
 class Shredder(Hero):
@@ -120,10 +120,10 @@ class Shredder(Hero):
         self.angle = 0
         self.cooldown_reset = 100
         self.id = "Shredder"
-        self.cost = 400
-        self.upgrades = [1000, 1000] # Cost of upgrades
-        self.upgrade_text = ["Projectile Speed Up", "Increase Pierce"]
-        self.super_upgrade_text = "It's not missing"
+        self.cost = 350
+        self.upgrades = [100, 500, 300, 300, 500] # Cost of upgrades
+        self.upgrade_text = ["Increase Range", "Add Two Extra Frags", "Projectile Speed Up", "Homing Frags", "Attack Speed Up on Kills"]
+        self.super_upgrade_text = "Frags on frags"
         self.super_upgrade_cost = 3000
         super().__init__(xy, move)
 
@@ -133,14 +133,14 @@ class Orbiter(Hero):
         self.a_imp = pygame.image.load(os.path.join(os.getcwd(), "Sprites", "Heroes", "Seeker.png")).convert()
         self.width = 28
         self.height = 61
-        self.range = 100000
+        self.range = 200
         self.angle = 0
-        self.cooldown_reset = 100
+        self.cooldown_reset = None
         self.id = "Orbiter"
-        self.cost = 400
-        self.upgrades = [1000, 1000] # Cost of upgrades
-        self.upgrade_text = ["Projectile Speed Up", "Increase Pierce"]
-        self.super_upgrade_text = "It's not missing"
-        self.super_upgrade_cost = 3000
+        self.cost = 500
+        self.upgrades = [1000, 800, 1000, 2000] # Cost of upgrades
+        self.upgrade_text = ["Adds Another Orb", "Orb Speed Increase", "Orb Size Increase", "Slows Enemies on Contact"]
+        self.super_upgrade_text = "The Wheel"
+        self.super_upgrade_cost = 6000
         super().__init__(xy, move)
 
