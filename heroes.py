@@ -19,6 +19,7 @@ class Hero:
         self.super_upgrade = False
         self.sell_value = 0
         self.kill_count = 0
+        self.can_see_infiltrators = False
     
     def update(self):
         self.position = [self.center[0]-self.width/2, self.center[1]-self.height/2]
@@ -35,8 +36,8 @@ class Gunner(Hero):
         self.cooldown_reset = 30
         self.id = "Gunner"
         self.cost = 85
-        self.upgrades = [50, 100, 150, 250] # Cost of upgrades
-        self.upgrade_text = ["Range Up", "Attack Speed Up", "Projectile Speed Up", "Pierce Up"]
+        self.upgrades = [50, 100, 150, 250, 100] # Cost of upgrades
+        self.upgrade_text = ["Range Up", "Attack Speed Up", "Projectile Speed Up", "Pierce Up", "Can Detect Infiltrators"]
         self.super_upgrade_text = "Shoots incredibly fast"
         self.super_upgrade_cost = 5000
         super().__init__(xy, move)

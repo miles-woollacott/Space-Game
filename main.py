@@ -239,38 +239,45 @@ while gameOn:
 
                 for h in hlst:
                     if h.hover:
-                        if event.key == K_1 and sum(h.upgraded) == len(h.upgraded) and not h.super_upgrade and player.money >= h.super_upgrade_cost:
+                        # Super upgrade unlocked when at least 3 normal upgrades are purchased
+                        if event.key == K_1 and sum(h.upgraded) >= 3 and not h.super_upgrade and player.money >= h.super_upgrade_cost:
                             h.super_upgrade = True
                             player.money -= h.super_upgrade_cost
                             h.sell_value += h.super_upgrade_cost / 2
                             if h.id == "Gunner": h.cooldown_reset = 2
                             elif h.id == "Seeker": h.cooldown_reset /= 4
                         
-                        if event.key == K_1 and not h.upgraded[0] and player.money >= h.upgrades[0]:
-                            h.upgraded[0] = True
-                            player.money -= h.upgrades[0]
-                            h.sell_value += h.upgrades[0]
-                            if h.id == "Gunner": h.range += 50
-                            elif h.id == "Saboteur": h.range += 20
-                        elif event.key == K_2 and not h.upgraded[1] and player.money >= h.upgrades[1]:
-                            h.upgraded[1] = True
-                            player.money -= h.upgrades[1]
-                            h.sell_value += h.upgrades[1]
-                            if h.id == "Gunner": h.cooldown_reset -= 10
-                            elif h.id == "Howitzer": h.cooldown_reset -= 32
-                        elif event.key == K_3 and not h.upgraded[2] and player.money >= h.upgrades[2]:
-                            h.upgraded[2] = True
-                            player.money -= h.upgrades[2]
-                            h.sell_value += h.upgrades[2] / 2
-                        elif event.key == K_4 and len(h.upgrades) > 3 and not h.upgraded[3] and player.money >= h.upgrades[3]:
-                            h.upgraded[3] = True
-                            player.money -= h.upgrades[3]
-                            h.sell_value += h.upgrades[3] / 2
-                        elif event.key == K_5 and len(h.upgrades) > 4 and not h.upgraded[4] and player.money >= h.upgrades[4]:
-                            h.upgraded[4] = True
-                            player.money -= h.upgrades[4]
-                            h.sell_value += h.upgrades[4] / 2
-
+                        # Standard upgrade cap logic (limits to 3 purchases max)
+                        elif sum(h.upgraded) < 3:
+                            if event.key == K_1 and not h.upgraded[0] and player.money >= h.upgrades[0]:
+                                h.upgraded[0] = True
+                                player.money -= h.upgrades[0]
+                                h.sell_value += h.upgrades[0]
+                                if h.id == "Gunner": h.range += 50
+                                elif h.id == "Saboteur": h.range += 20
+                            elif event.key == K_2 and not h.upgraded[1] and player.money >= h.upgrades[1]:
+                                h.upgraded[1] = True
+                                player.money -= h.upgrades[1]
+                                h.sell_value += h.upgrades[1]
+                                if h.id == "Gunner": h.cooldown_reset -= 10
+                                elif h.id == "Howitzer": h.cooldown_reset -= 32
+                            elif event.key == K_3 and not h.upgraded[2] and player.money >= h.upgrades[2]:
+                                h.upgraded[2] = True
+                                player.money -= h.upgrades[2]
+                                h.sell_value += h.upgrades[2] / 2
+                            elif event.key == K_4 and len(h.upgrades) > 3 and not h.upgraded[3] and player.money >= h.upgrades[3]:
+                                h.upgraded[3] = True
+                                player.money -= h.upgrades[3]
+                                h.sell_value += h.upgrades[3] / 2
+                            elif event.key == K_5 and len(h.upgrades) > 4 and not h.upgraded[4] and player.money >= h.upgrades[4]:
+                                h.upgraded[4] = True
+                                player.money -= h.upgrades[4]
+                                h.sell_value += h.upgrades[4] / 2
+                                if h.id == "Gunner": h.can_see_infiltrators = True
+                            elif event.key == K_6 and len(h.upgrades) > 5 and not h.upgraded[5] and player.money >= h.upgrades[5]:
+                                h.upgraded[5] = True
+                                player.money -= h.upgrades[5]
+                                h.sell_value += h.upgrades[5] / 2
                 if event.key == K_SPACE and len(elst) == 0 and not sandbox:
                     player.round += 1
                     if player.round > maxrounds:
@@ -398,6 +405,11 @@ while gameOn:
             dist = 0
             strength = 0
             for e in elst:
+                # Safely check if the tower can see it, and if the enemy is revealed
+                if e.id == "Infiltrator":
+                    if not h.can_see_infiltrators and not e.revealed:
+                        continue # Use continue to completely skip targeting this enemy
+
                 if distance(h.center, e.center) < h.range and not h.move and e.distance > dist:
                     if h.target == "First":
                         dist = e.distance
@@ -407,12 +419,18 @@ while gameOn:
                         
             if h.id == "Saboteur" and h.super_upgrade:
                 for e in elst:
+                    # Also skip Infiltrators for the Saboteur's AOE effect
+                    if e.id == "Infiltrator":
+                        if not h.revealed and not h.can_see_infiltrators:
+                            continue
+                            
                     if e.id != "Repairer" and not e.repaired and distance(h.center, e.center) < h.range and not h.move and e.id != "Saboteur":
                         e.speed = max(0.2, e.speed*0.9)
                         e.sabotaged = True
                         
             for e in elst:
-                if e.distance == dist:
+                # Added 'dist > 0' check so it doesn't try to shoot at the 0/0 spawn point when no target is found
+                if dist > 0 and e.distance == dist:
                     if h.target == "First" or (h.target == "Strong" and e.priority == strength):
                         h.angle = angle(h.center, e.center)
                         h.a_imp = pygame.transform.rotate(h.imp, h.angle)
@@ -457,6 +475,11 @@ while gameOn:
 
             if h.cooldown > 0:
                 h.cooldown = (h.cooldown + 1) % h.cooldown_reset
+
+        for e in dead_enemies:
+            if e in elst: elst.remove(e)
+        for h in dead_heroes:
+            if h in hlst: hlst.remove(h)
 
         for e in dead_enemies:
             if e in elst: elst.remove(e)
@@ -584,33 +607,67 @@ while gameOn:
                 pygame.draw.circle(screen, (100, 100, 100), h.center, h.range, 3)
             elif not canPlace and h.move:
                 pygame.draw.circle(screen, (200, 0, 0), h.center, h.range, 3)
-            elif h.hover and sum(h.upgraded) == len(h.upgraded) and not h.super_upgrade:
-                screen.blit(font.render(h.id.upper(), False, white), (1000, 50))
-                screen.blit(ssfont.render("1: " + h.super_upgrade_text, False, white), (1000, 200))
-                screen.blit(sfont.render("Cost: " + str(h.super_upgrade_cost), False, white), (1000, 250))
-                if h.target == "First":
-                    pygame.draw.circle(screen, (0, 200, 0), h.center, h.range, 3)
-                elif h.target == "Strong":
-                    pygame.draw.circle(screen, (200, 200, 0), h.center, h.range, 3)
             elif h.hover:
-                upgrade_text = [None for i in h.upgrade_text + h.upgrades]
-                screen.blit(font.render(h.id.upper(), False, white), (1000, 50))
-                for i in range(len(h.upgrade_text)):
-                    txt = str(i + 1) + ": " + h.upgrade_text[i]
-                    upgrade_text[2 * i] = ssfont.render(txt, False, white)
-                    upgrade_text[2 * i + 1] = sfont.render("Cost: " + str(h.upgrades[i]), False, white)
-                for i in range(len(upgrade_text)):
-                    if i % 2 == 0:
-                        screen.blit(upgrade_text[i], (1000, 100 + 50 * i))
-                    else:
-                        screen.blit(upgrade_text[i], (1000, 100 + 50 * (i - 1) + 20))
-                
+                # 1. Draw Target Circle
                 if h.target == "First":
                     pygame.draw.circle(screen, (0, 200, 0), h.center, h.range, 3)
                 elif h.target == "Strong":
                     pygame.draw.circle(screen, (200, 200, 0), h.center, h.range, 3)
-            screen.blit(h.a_imp, h.position)
+
+                # 2. Draw Tower Name
+                screen.blit(font.render(h.id.upper(), False, white), (1000, 50))
+
+                # 3. Determine and Draw Purchased Upgrades
+                purchased_list = []
+                for i in range(len(h.upgraded)):
+                    if h.upgraded[i]:
+                        purchased_list.append(h.upgrade_text[i])
+                
+                if h.super_upgrade:
+                    purchased_list.append(h.super_upgrade_text)
+                
+                current_y = 85
+                if len(purchased_list) == 0:
+                    screen.blit(ssfont.render("Not upgraded", False, white), (1000, current_y))
+                    current_y += 18
+                else:
+                    for text in purchased_list:
+                        if text == h.super_upgrade_text:
+                            screen.blit(ssfont.render(text, False, purple), (1000, current_y))
+                        else:
+                            screen.blit(ssfont.render(text, False, yellow), (1000, current_y))
+                        current_y += 18
+                
+                current_y += 20
+                
+                # 4. Draw Available Upgrades
+                if h.super_upgrade:
+                    screen.blit(sfont.render("All upgrades purchased", False, green), (1000, current_y))
+                elif sum(h.upgraded) >= 3:
+                    screen.blit(ssfont.render("1: " + h.super_upgrade_text, False, purple), (1000, current_y))
+                    screen.blit(sfont.render("Cost: " + str(h.super_upgrade_cost), False, white), (1000, current_y + 25))
+                else:
+                    # Show normal upgrades
+                    upgrade_text = [None for i in h.upgrade_text + h.upgrades]
+                    for i in range(len(h.upgrade_text)):
+                        txt = str(i + 1) + ": " + h.upgrade_text[i]
+                        
+                        if h.upgraded[i]:
+                            upgrade_text[2 * i] = ssfont.render(txt, False, yellow)
+                            upgrade_text[2 * i + 1] = ssfont.render("Already purchased", False, yellow) 
+                        else:
+                            upgrade_text[2 * i] = ssfont.render(txt, False, white)
+                            upgrade_text[2 * i + 1] = ssfont.render("Cost: " + str(h.upgrades[i]), False, white)
+                    
+                    for i in range(len(upgrade_text)):
+                        if i % 2 == 0:
+                            # Using 25 * i creates a compact 50px gap between upgrades
+                            screen.blit(upgrade_text[i], (1000, current_y + 25 * i))
+                        else:
+                            screen.blit(upgrade_text[i], (1000, current_y + 25 * (i-1) + 18))
             
+            # This line ensures the towers are actually drawn!
+            screen.blit(h.a_imp, h.position)
         for e in elst:
             screen.blit(e.a_imp, e.position)
         for p in projectiles:

@@ -155,10 +155,10 @@ class Repairer(Enemy):
 
 class Infiltrator(Enemy):
     def __init__(self, xy, index=0, distance=0, shielded=False):
-        self.imp = pygame.image.load(os.path.join(os.getcwd(), "Sprites", "Enemies", "Repairer.png")).convert()
-        self.a_imp = pygame.image.load(os.path.join(os.getcwd(), "Sprites", "Enemies", "Repairer.png")).convert()
-        self.width = 28
-        self.height = 28
+        self.imp = pygame.image.load(os.path.join(os.getcwd(), "Sprites", "Enemies", "Infiltrator.png")).convert()
+        self.a_imp = pygame.image.load(os.path.join(os.getcwd(), "Sprites", "Enemies", "Infiltrator.png")).convert()
+        self.width = 24
+        self.height = 22
         self.index = index
         self.angle = 0
         self.speed = 5
@@ -167,5 +167,6 @@ class Infiltrator(Enemy):
         self.priority = 2
         self.reward = 10
         self.level = 3
+        self.revealed = False
         super().__init__(xy, distance=distance, shielded=shielded)
     
