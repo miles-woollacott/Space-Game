@@ -1,7 +1,5 @@
 1. Leech, Orbiter, Shredder need new sprites + updated game logic
-2. Infiltrator needs new sprites + updated game logic
-3. More upgrade paths for seeker, limit to 3 upgrades/tower?
-    3a. Display which upgrades have been purchased
-4. Implement and display kill count
-5. Experience-based unlocking of upgrades (use kill counts)
-6. Enemies spawned from Dreadnoughts should yield less cash
+2. More upgrade paths for seeker, limit to 3 upgrades/tower?
+3. "Unsabotaged" targeting option
+4. Experience-based unlocking of upgrades (use kill counts)
+5. Enemies spawned from Dreadnoughts should yield less cash

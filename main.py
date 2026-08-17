@@ -166,27 +166,31 @@ while gameOn:
                 for h in hlst:
                     canPlace = True
                     if h.hitBox.isClicked(mouseloc):
+                        
+                        # Sell tower
                         if ticon.clicked:
                             ticon.clicked = False
                             heroes_to_remove.append(h)
                             player.money += 3 * h.sell_value / 2
-                        elif len(hlst) == 1 and mouseloc[1] < 720 and player.money < h.cost:
-                            h.move = False
-                            h.placed = True
-                            player.money -= h.cost
-                            continue
+                            continue # Skip the rest of the checks for this tower
+                            
+                        # Check for collisions with other towers
                         for h1 in hlst:
                             if h1 != h and h.hitBox.intersects(h1.hitBox):
                                 canPlace = False
+                        
+                        # Place tower if not yet placed
                         if h.move:
                             if player.money < h.cost:
                                 if h not in heroes_to_remove:
                                     heroes_to_remove.append(h)
-                            if canPlace and mouseloc[1] < 720:
+                            elif canPlace and mouseloc[1] < 720:
                                 h.move = False
                                 h.placed = True
                                 player.money -= h.cost
-                        elif h.hitBox.isClicked(pygame.mouse.get_pos()):
+                                
+                        # Change target priority if clicked
+                        else:
                             if h.target == "First":
                                 h.target = "Strong"
                             else:
@@ -196,20 +200,26 @@ while gameOn:
                     if h in hlst:
                         hlst.remove(h)
                                 
+                hero_purchased = False
+                
                 if gicon.hitBox.isClicked(mouseloc):
                     hlst.append(Gunner(mouseloc, move=True))
+                    hero_purchased = True
                 elif hoicon.hitBox.isClicked(mouseloc):
                     hlst.append(Howitzer(mouseloc, move=True))
+                    hero_purchased = True
                 elif sicon.hitBox.isClicked(mouseloc):
                     hlst.append(Saboteur(mouseloc, move=True))
+                    hero_purchased = True
                 elif seicon.hitBox.isClicked(mouseloc):
                     hlst.append(Seeker(mouseloc, move=True))
+                    hero_purchased = True
 
-                if len(hlst) > 0:
+                # Easier difficulty makes heroes cheaper
+                if hero_purchased:
                     hlst[-1].cost *= difficulty_adj[player.difficulty]
                     hlst[-1].upgrades = [round(up * difficulty_adj[player.difficulty]) for up in hlst[-1].upgrades]
-                    hlst[-1].super_upgrade_cost = round(hlst[-1].super_upgrade_cost * difficulty_adj[player.difficulty])
-                        
+                    hlst[-1].super_upgrade_cost = round(hlst[-1].super_upgrade_cost * difficulty_adj[player.difficulty]) 
             if event.type == KEYDOWN:
                 if event.key == K_BACKSPACE or event.key == K_ESCAPE:
                     gameOn = False
@@ -246,7 +256,6 @@ while gameOn:
                             h.sell_value += h.super_upgrade_cost / 2
                             if h.id == "Gunner": h.cooldown_reset = 2
                             elif h.id == "Seeker": h.cooldown_reset /= 4
-                        
                         # Standard upgrade cap logic (limits to 3 purchases max)
                         elif sum(h.upgraded) < 3:
                             if event.key == K_1 and not h.upgraded[0] and player.money >= h.upgrades[0]:
@@ -369,7 +378,7 @@ while gameOn:
             elif e.id == "Regenerator" and not e.sabotaged:
                 e.countdown = (e.countdown + 1) % e.countdown_reset
                 if e.countdown == 0:
-                    e.lives += 1
+                    e.lives = min(round(2*ghost_enemies["Regenerator"].lives), e.lives+1)
             elif e.id == "Repairer":
                 for e1 in elst:
                     if e1.hitBox.intersects(e.hitBox) and e1.position != e.position:
@@ -627,10 +636,10 @@ while gameOn:
 
                 # 2. Draw Tower Name and Kills
                 screen.blit(font.render(h.id.upper(), False, white), (1000, 50))
-                kills_str = "Kills: " + str(getattr(h, 'kills', 0))
+                kills_str = "Target: " + str(getattr(h, 'target', 0)) + " | Kills: " + str(getattr(h, 'kills', 0))
                 screen.blit(ssfont.render(kills_str, False, offwhite), (1000, 85))
                 
-                # Make sure to shift current_y down slightly so upgrades don't overlap the kill count!
+                # Shift down slightly so upgrades don't overlap the kill count
                 current_y = 115
 
                 # 3. Determine and Draw Purchased Upgrades

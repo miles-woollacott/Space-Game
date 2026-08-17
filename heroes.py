@@ -12,7 +12,7 @@ class Hero:
         self.hitBox = HitBox(self.center, self.width, self.height)
         self.cooldown = 0
         self.move = move
-        self.target = "First" # First and strong
+        self.target = "First" # First, strong, and unsabotaged
         self.hover = False
         self.placed = False
         self.upgraded = [False for i in self.upgrades]
@@ -116,7 +116,7 @@ class Shredder(Hero):
         self.a_imp = pygame.image.load(os.path.join(os.getcwd(), "Sprites", "Heroes", "Seeker.png")).convert()
         self.width = 28
         self.height = 61
-        self.range = 100000
+        self.range = 300
         self.angle = 0
         self.cooldown_reset = 100
         self.id = "Shredder"

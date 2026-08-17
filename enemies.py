@@ -112,9 +112,9 @@ class Regenerator(Enemy):
         self.index = index
         self.angle = 0
         self.speed = 6
-        self.lives = 16
+        self.lives = 5
         self.countdown = 0
-        self.countdown_reset = 30
+        self.countdown_reset = 45
         self.id = "Regenerator"
         self.priority = 1
         self.reward = 150
